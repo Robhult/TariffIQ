@@ -9,8 +9,8 @@ from .const import ATTRIBUTION
 from .coordinator import BlueprintDataUpdateCoordinator
 
 
-class IntegrationBlueprintEntity(CoordinatorEntity[BlueprintDataUpdateCoordinator]):
-    """BlueprintEntity class."""
+class TariffIQEntity(CoordinatorEntity[BlueprintDataUpdateCoordinator]):
+    """TariffIQEntity class."""
 
     _attr_attribution = ATTRIBUTION
 
