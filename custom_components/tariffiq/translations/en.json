@@ -2,20 +2,27 @@
     "config": {
         "step": {
             "user": {
-                "description": "If you need help with the configuration have a look here: https://github.com/robhult/tariffiq",
+                "title": "Configure TariffIQ",
                 "data": {
-                    "username": "Username",
-                    "password": "Password"
+                    "name": "Name",
+                    "dso_and_model": "Distribution System Operator and Model",
+                    "power_sensor": "Power Sensor (W)",
+                    "energy_sensor": "Energy Sensor (kWh)",
+                    "prices_entity": "Pricing Sensor (None, Nordpool, or Entso-e)"
                 }
             }
         },
         "error": {
-            "auth": "Username/Password is wrong.",
-            "connection": "Unable to connect to the server.",
-            "unknown": "Unknown error occurred."
+            "name_exists": "A TariffIQ object with this name already exists.",
+            "error_extracting_currency": "Could not extract currency from pricing sensor.",
+            "invalid_dso_model": "The selected DSO and model combination is invalid.",
+            "invalid_power_sensor": "The selected power sensor is invalid.",
+            "invalid_value_power_sensor": "The selected power sensor does not provide valid numeric values.",
+            "invalid_energy_sensor": "The selected energy sensor is invalid.",
+            "invalid_value_energy_sensor": "The selected energy sensor does not provide valid numeric values."
         },
         "abort": {
-            "already_configured": "This entry is already configured."
+            "already_configured": "This TariffIQ object already exists."
         }
     }
 }
