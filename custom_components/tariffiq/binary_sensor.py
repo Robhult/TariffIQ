@@ -1,4 +1,4 @@
-"""Binary sensor platform for tariffiq."""
+"""TariffIQ binary sensor platform."""
 
 from __future__ import annotations
 
@@ -9,53 +9,67 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
     BinarySensorEntityDescription,
 )
+from homeassistant.helpers.device_registry import DeviceInfo
 
-from .entity import TariffIQEntity
+from .const import CONF_DSO, CONF_DSO_MODEL, CONF_FUSE_SIZE, CONF_NAME, DOMAIN
 
 if TYPE_CHECKING:
+    from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-    from .coordinator import TariffIQUpdateCoordinator
-    from .data import TariffIQConfigEntry
 
-ENTITY_DESCRIPTIONS = (
+BINARY_SENSORS: tuple[BinarySensorEntityDescription, ...] = (
     BinarySensorEntityDescription(
-        key="tariffiq",
-        name="TariffIQ Binary Sensor",
-        device_class=BinarySensorDeviceClass.CONNECTIVITY,
+        key="no_tariff",
+        translation_key="no_tariff",
+    ),
+    BinarySensorEntityDescription(
+        key="low_tariff",
+        translation_key="low_tariff",
+    ),
+    BinarySensorEntityDescription(
+        key="high_tariff",
+        translation_key="high_tariff",
     ),
 )
 
 
 async def async_setup_entry(
-    hass: HomeAssistant,  # noqa: ARG001 Unused function argument: `hass`
-    entry: TariffIQConfigEntry,
+    hass: HomeAssistant,
+    entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up the binary_sensor platform."""
+    """Set up the TariffIQ binary sensor."""
     async_add_entities(
-        TariffIQBinarySensor(
-            coordinator=entry.runtime_data.coordinator,
-            entity_description=entity_description,
-        )
-        for entity_description in ENTITY_DESCRIPTIONS
+        TariffIQBinarySensor(hass, entity_description, entry)
+        for entity_description in BINARY_SENSORS
     )
 
 
-class TariffIQBinarySensor(TariffIQEntity, BinarySensorEntity):
-    """tariffiq binary_sensor class."""
+class TariffIQBinarySensor(BinarySensorEntity):
+    """TariffIQ Binary Sensor class."""
+
+    hass: HomeAssistant
+    entry: ConfigEntry
 
     def __init__(
         self,
-        coordinator: TariffIQUpdateCoordinator,
-        entity_description: BinarySensorEntityDescription,
+        hass: HomeAssistant,
+        description: BinarySensorEntityDescription,
+        entry: ConfigEntry,
     ) -> None:
-        """Initialize the binary_sensor class."""
-        super().__init__(coordinator)
-        self.entity_description = entity_description
+        """Initialize the binary sensor."""
+        self.hass = hass
+        self.entry = entry
 
-    @property
-    def is_on(self) -> bool:
-        """Return true if the binary_sensor is on."""
-        return self.coordinator.data.get("title", "") == "foo"
+        data = entry.data
+
+        self.entity_description = description
+        self._attr_unique_id = f"{data[CONF_NAME]}_{description.key}"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, data[CONF_NAME])},
+            name=data[CONF_NAME],
+            manufacturer=DOMAIN,
+            model=f"{data[CONF_DSO]}_{data[CONF_DSO_MODEL]}_{data[CONF_FUSE_SIZE]}",
+        )

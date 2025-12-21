@@ -4,6 +4,7 @@ from logging import Logger, getLogger
 
 LOGGER: Logger = getLogger(__package__)
 
+DATA_HASS_CONFIG = "tariffiq_hass_config"
 DOMAIN = "tariffiq"
 ATTRIBUTION = "Data provided by http://jsonplaceholder.typicode.com/"
 
