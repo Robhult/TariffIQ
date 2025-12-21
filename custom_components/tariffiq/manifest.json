@@ -6,7 +6,8 @@
   ],
   "config_flow": true,
   "documentation": "https://github.com/robhult/tariffiq",
-  "iot_class": "cloud_polling",
+  "integration_type": "hub",
+  "iot_class": "calculated",
   "issue_tracker": "https://github.com/robhult/tariffiq/issues",
   "version": "0.1.0"
 }
