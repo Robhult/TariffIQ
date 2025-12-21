@@ -5,9 +5,14 @@
     "@robhult"
   ],
   "config_flow": true,
+  "dependencies": [],
   "documentation": "https://github.com/robhult/tariffiq",
   "integration_type": "device",
   "iot_class": "calculated",
+  "loggers": [
+    "tariffiq"
+  ],
+  "requirements": [],
   "issue_tracker": "https://github.com/robhult/tariffiq/issues",
   "version": "0.1.0"
 }
