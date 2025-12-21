@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import secrets
 from typing import Any
 
 import voluptuous as vol
@@ -62,13 +63,14 @@ class TariffIQConfigFlow(ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Handle initial user step."""
-        self._async_abort_entries_match()
-
         _errors: dict[str, str] = {}
+
+        # Generate random default name
+        default_name = f"TariffIQ_{secrets.token_hex(4)}"
 
         _schema = vol.Schema(
             {
-                vol.Required(CONF_NAME, default="TariffIQ"): str,
+                vol.Required(CONF_NAME, default=default_name): str,
                 vol.Required(CONF_DSO): selector.SelectSelector(
                     selector.SelectSelectorConfig(
                         options=list(DSO.keys()),
