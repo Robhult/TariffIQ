@@ -5,30 +5,33 @@ from __future__ import annotations
 from typing import Any
 
 import voluptuous as vol
+from homeassistant import config_entries
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import ATTR_NAME, ATTR_UNIT_OF_MEASUREMENT
 from homeassistant.helpers import selector, template
 
 from .const import (
-    CONF_DSO_AND_MODEL,
+    CONF_DSO,
+    CONF_DSO_MODEL,
     CONF_ENERGY_SENSOR,
+    CONF_FUSE_SIZE,
     CONF_NAME,
     CONF_POWER_SENSOR,
-    CONF_PRICING_ENTITY,
     DOMAIN,
-    DSO_MODELS,
+    DSO,
     NONE,
     PRICING_INTEGRATIONS,
+    Default,
 )
 from .helpers import LOGGER
 
 
-class TariffIQConfigFlow(ConfigFlow, domain=DOMAIN):  # pyright: ignore[reportCallIssue]
+class TariffIQConfigFlow(ConfigFlow, domain=DOMAIN):
     """Config flow for TariffIQ."""
 
     VERSION = 1
-    data = None
-    options = None
+    data: dict[str, Any] = {}  # noqa: RUF012
+    options: dict[str, Any] = {}  # noqa: RUF012
 
     def _get_pricing_entities(self) -> list[str]:
         """Get pricing entities for the config flow."""
@@ -65,13 +68,140 @@ class TariffIQConfigFlow(ConfigFlow, domain=DOMAIN):  # pyright: ignore[reportCa
 
         _schema = vol.Schema(
             {
-                vol.Required(CONF_NAME, "TariffIQ"): str,
-                vol.Required(CONF_DSO_AND_MODEL): selector.SelectSelector(
+                vol.Required(CONF_NAME, default="TariffIQ"): str,
+                vol.Required(CONF_DSO): selector.SelectSelector(
                     selector.SelectSelectorConfig(
-                        options=DSO_MODELS,
+                        options=list(DSO.keys()),
                         mode=selector.SelectSelectorMode.DROPDOWN,
                     )
                 ),
+            }
+        )
+
+        if user_input is not None:
+            self.data.update(user_input)
+
+            # Set unique ID and abort if configured
+            await self.async_set_unique_id(self.data[CONF_NAME])
+            self._abort_if_unique_id_configured()
+
+            # dso and model validation
+            if self.data[CONF_DSO] not in list(DSO.keys()):
+                _errors[CONF_DSO] = "invalid_dso"
+
+            if _errors:
+                return self.async_show_form(
+                    step_id="user",
+                    data_schema=_schema,
+                    errors=_errors,
+                    last_step=False,
+                )
+
+            return await self.async_step_dso_model()
+
+        return self.async_show_form(
+            step_id="user",
+            data_schema=_schema,
+            errors=_errors,
+            last_step=False,
+        )
+
+    async def async_step_dso_model(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """DSO model step."""
+        _errors: dict[str, str] = {}
+
+        available_models = DSO[self.data[CONF_DSO]].get("models", {Default: {}}).keys()
+
+        _schema = vol.Schema(
+            {
+                vol.Required(CONF_DSO_MODEL): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=list(available_models),
+                        mode=selector.SelectSelectorMode.DROPDOWN,
+                    )
+                ),
+            }
+        )
+
+        if user_input is not None:
+            self.data.update(user_input)
+
+            if self.data[CONF_DSO_MODEL] not in list(available_models):
+                _errors[CONF_DSO_MODEL] = "invalid_dso_model"
+
+            if _errors:
+                return self.async_show_form(
+                    step_id="dso_model",
+                    data_schema=_schema,
+                    errors=_errors,
+                    last_step=False,
+                )
+
+            return await self.async_step_dso_fuse_size()
+
+        return self.async_show_form(
+            step_id="dso_model",
+            data_schema=_schema,
+            errors=_errors,
+            last_step=False,
+        )
+
+    async def async_step_dso_fuse_size(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """DSO fuse step."""
+        _errors: dict[str, str] = {}
+
+        available_fuses = (
+            DSO[self.data[CONF_DSO]]["models"][self.data[CONF_DSO_MODEL]]
+            .get("fuse_sizes", {Default: {}})
+            .keys()
+        )
+
+        _schema = vol.Schema(
+            {
+                vol.Required(CONF_FUSE_SIZE): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=list(available_fuses),
+                        mode=selector.SelectSelectorMode.DROPDOWN,
+                    )
+                ),
+            }
+        )
+
+        if user_input is not None:
+            self.data.update(user_input)
+
+            if self.data[CONF_FUSE_SIZE] not in list(available_fuses):
+                _errors[CONF_FUSE_SIZE] = "invalid_fuse_size"
+
+            if _errors:
+                return self.async_show_form(
+                    step_id="dso_fuse_size",
+                    data_schema=_schema,
+                    errors=_errors,
+                    last_step=False,
+                )
+
+            return await self.async_step_sensor()
+
+        return self.async_show_form(
+            step_id="dso_fuse_size",
+            data_schema=_schema,
+            errors=_errors,
+            last_step=False,
+        )
+
+    async def async_step_sensor(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Sensor step."""
+        _errors: dict[str, str] = {}
+
+        _schema = vol.Schema(
+            {
                 vol.Required(CONF_POWER_SENSOR): selector.EntitySelector(
                     selector.EntitySelectorConfig(
                         domain="sensor",
@@ -86,54 +216,47 @@ class TariffIQConfigFlow(ConfigFlow, domain=DOMAIN):  # pyright: ignore[reportCa
                         multiple=False,
                     )
                 ),
-                vol.Optional(CONF_PRICING_ENTITY): selector.SelectSelector(
-                    selector.SelectSelectorConfig(options=self._get_pricing_entities())
-                ),
+                # vol.Optional(CONF_PRICING_ENTITY): selector.SelectSelector(
+                #     selector.SelectSelectorConfig(options=self._get_pricing_entities())
+                # ),
             }
         )
 
         if user_input is not None:
-            self.data = user_input
-
-            # dso and model validation
-            if self.data[CONF_DSO_AND_MODEL] not in DSO_MODELS:
-                _errors[CONF_DSO_AND_MODEL] = "invalid_dso_model"
+            self.data.update(user_input)
 
             # Power sensor validation
-            if not self.data[CONF_POWER_SENSOR].startswith("sensor."):
+            if not user_input[CONF_POWER_SENSOR].startswith("sensor."):
                 _errors[CONF_POWER_SENSOR] = "invalid_power_sensor"
-            val_state = self.hass.states.get(self.data[CONF_POWER_SENSOR])
+            val_state = self.hass.states.get(user_input[CONF_POWER_SENSOR])
             if val_state is None or not isinstance(float(val_state.state), float):
                 _errors[CONF_POWER_SENSOR] = "invalid_value_power_sensor"
 
             # Energy sensor validation
-            if not self.data[CONF_ENERGY_SENSOR].startswith("sensor."):
+            if not user_input[CONF_ENERGY_SENSOR].startswith("sensor."):
                 _errors[CONF_ENERGY_SENSOR] = "invalid_energy_sensor"
-            val_state = self.hass.states.get(self.data[CONF_ENERGY_SENSOR])
+            val_state = self.hass.states.get(user_input[CONF_ENERGY_SENSOR])
             if val_state is None or not isinstance(float(val_state.state), float):
                 _errors[CONF_ENERGY_SENSOR] = "invalid_value_energy_sensor"
 
-            # pricing entity validation
-            self.options = {}
-            _pricing_entity = self.hass.states.get(self.data[CONF_PRICING_ENTITY])
-            if _pricing_entity is not None:
-                try:
-                    if _pricing_entity:
-                        self.options[ATTR_UNIT_OF_MEASUREMENT] = (
-                            _pricing_entity.attributes.get(ATTR_UNIT_OF_MEASUREMENT)
-                        )
-                except (IndexError, KeyError):
-                    _errors[CONF_PRICING_ENTITY] = "error_extracting_currency"
+            # self.options = {}
+            # _pricing_entity = self.hass.states.get(self.data[CONF_PRICING_ENTITY])
+            # if _pricing_entity is not None:
+            #     try:
+            #         if _pricing_entity:
+            #             self.options[ATTR_UNIT_OF_MEASUREMENT] = (
+            #                 _pricing_entity.attributes.get(ATTR_UNIT_OF_MEASUREMENT)
+            #             )
+            #     except (IndexError, KeyError):
+            #         _errors[CONF_PRICING_ENTITY] = "error_extracting_currency"
 
             if _errors:
                 return self.async_show_form(
-                    step_id="user",
+                    step_id="sensor",
                     data_schema=_schema,
                     errors=_errors,
+                    last_step=True,
                 )
-
-            await self.async_set_unique_id(self.data[CONF_NAME])
-            self._abort_if_unique_id_configured()
 
             LOGGER.debug(
                 'Creating entry "%s" with data "%s"',
@@ -141,15 +264,37 @@ class TariffIQConfigFlow(ConfigFlow, domain=DOMAIN):  # pyright: ignore[reportCa
                 self.data,
             )
             return self.async_create_entry(
-                title=self.data.get(
-                    CONF_NAME, DOMAIN
-                ),  # TODO: Update to a better title.
+                title=self.data.get(CONF_NAME, DOMAIN),
                 data=self.data,
                 options=self.options,
             )
 
         return self.async_show_form(
-            step_id="user",
+            step_id="sensor",
             data_schema=_schema,
             errors=_errors,
+            last_step=True,
         )
+
+
+class OptionsFlowHandler(config_entries.OptionsFlow):
+    """Handle a TariffIQ options flow."""
+
+    options: dict[str, Any] = {}  # noqa: RUF012
+
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+        """Initialize TariffIQ options flow."""
+        self.config_entry = config_entry
+        self.options = dict(config_entry.options)
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Manage the options."""
+        # TODO: Start with a step where Fuse size can be changed.
+        # Then show another step where the rest of the attributes can be changed.
+        # tariff cost, fixed fee, etc. depending on DSO/model/fuse size.
+        # TODO: Which options to be shown should be set depending on DSO object.
+        # TODO: Default values should be set to those defined by the DSO. (Constants)
+
+        return self.async_abort(reason="no_options_available")
