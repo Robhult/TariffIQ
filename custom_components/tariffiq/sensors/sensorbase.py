@@ -33,6 +33,7 @@ class SensorBase(SensorEntity):
 
     hass: HomeAssistant
     entry: ConfigEntry
+    key: str
 
     def __init__(
         self,

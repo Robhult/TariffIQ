@@ -1,4 +1,4 @@
-"""TariffIQ Peak Sensor integration."""
+"""TariffIQ Peaks Sensor integration."""
 
 from __future__ import annotations
 
@@ -19,8 +19,8 @@ if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
 
 
-class TariffIQPeakSensor(SensorBase, RestoreEntity):
-    """TariffIQ Peak Sensor class."""
+class TariffIQPeaksSensor(SensorBase, RestoreEntity):
+    """TariffIQ Peaks Sensor class."""
 
     device_class: SensorDeviceClass = SensorDeviceClass.ENERGY
     unit_of_measurement: str = UnitOfEnergy.KILO_WATT_HOUR
@@ -40,6 +40,7 @@ class TariffIQPeakSensor(SensorBase, RestoreEntity):
     def extra_state_attributes(self) -> dict:
         """Return the state attributes."""
         return {
+            "expected_peak": 0.0,  # Placeholder for expected peak value
             "peaks_dictionary": {
                 "17h12": 0.1,
                 "12h13": 0.2,

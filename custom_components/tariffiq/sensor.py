@@ -10,7 +10,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 
-from custom_components.tariffiq.sensors.peak_sensor import TariffIQPeakSensor
+from custom_components.tariffiq.sensors.peaks_sensor import TariffIQPeaksSensor
 
 from .const import (
     TARIFF_OPTIONS,
@@ -59,6 +59,6 @@ async def async_setup_entry(
     """Set up the TariffIQ sensor."""
     entities: list[SensorBase] = []
 
-    entities.append(TariffIQPeakSensor(hass, entry))
+    entities.append(TariffIQPeaksSensor(hass, entry))
 
     async_add_entities(entities)
