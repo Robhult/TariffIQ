@@ -45,8 +45,9 @@ class BinarySensorBase(BinarySensorEntity):
 
     @property
     def unique_id(self) -> str:
-        """Return the unique ID."""
-        return f"{self.entry.data[CONF_NAME]}_{self.key}"
+        """Return the unique ID of the binary sensor."""
+        conf_name: str = self.entry.data[CONF_NAME].replace("TariffIQ", "")
+        return f"{conf_name}_{self.key}".lower()
 
     @property
     def device_info(self) -> DeviceInfo:

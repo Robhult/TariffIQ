@@ -24,7 +24,6 @@ class TariffIQTariffActiveBinarySensor(BinarySensorBase):
     """Tariff active binary sensor."""
 
     translation_key: str = "tariff_active"
-    name: str = "Tariff Active"
 
     def __init__(
         self,
@@ -32,6 +31,8 @@ class TariffIQTariffActiveBinarySensor(BinarySensorBase):
         entry: ConfigEntry,
     ) -> None:
         """Initialize the Tariff Active binary sensor."""
+        self.name = "Tariff Active"
+
         super().__init__(
             hass,
             entry,

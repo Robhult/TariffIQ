@@ -26,7 +26,6 @@ class TariffIQPeaksSensor(SensorBase, RestoreEntity):
     unit_of_measurement: str = UnitOfEnergy.KILO_WATT_HOUR
     translation_key: str = "peaks"
     icon: str = "mdi:chart-line"
-    name: str = "Peaks Sensor"
 
     def __init__(
         self,
@@ -34,6 +33,8 @@ class TariffIQPeaksSensor(SensorBase, RestoreEntity):
         entry: ConfigEntry,
     ) -> None:
         """Initialize the peak sensor."""
+        self.name = "Peaks"
+
         super().__init__(hass, entry, "peaks")
 
     @property
