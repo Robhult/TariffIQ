@@ -5,9 +5,18 @@
                 "title": "Configure TariffIQ",
                 "data": {
                     "name": "Name",
-                    "dso": "Distribution System Operator",
-                    "dso_model": "Distribution System Operator Model",
-                    "fuse_size": "Fuse Size (A)",
+                    "dso_and_model": "Distribution System Operator and Model"
+                }
+            },
+            "fuse_size": {
+                "title": "Select Fuse Size",
+                "data": {
+                    "fuse_size": "Fuse Size (A)"
+                }
+            },
+            "sensor": {
+                "title": "Select Sensors",
+                "data": {
                     "power_sensor": "Power Sensor (W)",
                     "energy_sensor": "Energy Sensor (kWh)",
                     "prices_entity": "Pricing Sensor (None, Nordpool, or Entso-e)"
@@ -17,8 +26,7 @@
         "error": {
             "name_exists": "A TariffIQ object with this name already exists.",
             "error_extracting_currency": "Could not extract currency from pricing sensor.",
-            "invalid_dso": "The selected DSO is invalid.",
-            "invalid_dso_model": "The selected DSO model is invalid.",
+            "invalid_dso_and_model": "The selected Distribution System Operator and Model is invalid.",
             "invalid_fuse_size": "The selected fuse size is invalid.",
             "invalid_power_sensor": "The selected power sensor is invalid.",
             "invalid_value_power_sensor": "The selected power sensor does not provide valid numeric values.",
@@ -45,6 +53,9 @@
             }
         },
         "binary_sensor": {
+            "tariff_active": {
+                "name": "Tariff Active"
+            },
             "no_tariff": {
                 "name": "No Tariff Active"
             },

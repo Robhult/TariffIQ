@@ -15,8 +15,7 @@ from homeassistant.components.sensor import (
 )
 
 from tariffiq.const import (
-    CONF_DSO,
-    CONF_DSO_MODEL,
+    CONF_DSO_AND_MODEL,
     CONF_FUSE_SIZE,
     CONF_NAME,
     DOMAIN,
@@ -59,8 +58,6 @@ class SensorBase(SensorEntity):
             "name": self.entry.data[CONF_NAME],
             "manufacturer": DOMAIN,
             "model": (
-                f"{self.entry.data[CONF_DSO]}_"
-                f"{self.entry.data[CONF_DSO_MODEL]}_"
-                f"{self.entry.data[CONF_FUSE_SIZE]}"
+                f"{self.entry.data[CONF_DSO_AND_MODEL]}_{self.entry.data[CONF_FUSE_SIZE]}A"
             ),
         }

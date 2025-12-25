@@ -8,22 +8,19 @@ from typing import Any
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
-from homeassistant.const import ATTR_NAME, ATTR_UNIT_OF_MEASUREMENT
 from homeassistant.helpers import selector, template
 
 from .const import (
-    CONF_DSO,
-    CONF_DSO_MODEL,
+    CONF_DSO_AND_MODEL,
     CONF_ENERGY_SENSOR,
     CONF_FUSE_SIZE,
     CONF_NAME,
     CONF_POWER_SENSOR,
     DOMAIN,
-    DSO,
     NONE,
     PRICING_INTEGRATIONS,
-    Default,
 )
+from .dso import get_available_dsos, get_dso_fuse_sizes
 from .helpers import LOGGER
 
 
@@ -68,12 +65,15 @@ class TariffIQConfigFlow(ConfigFlow, domain=DOMAIN):
         # Generate random default name
         default_name = f"TariffIQ_{secrets.token_hex(4)}"
 
+        # Get available DSOs from registry
+        available_dsos = get_available_dsos()
+
         _schema = vol.Schema(
             {
                 vol.Required(CONF_NAME, default=default_name): str,
-                vol.Required(CONF_DSO): selector.SelectSelector(
+                vol.Required(CONF_DSO_AND_MODEL): selector.SelectSelector(
                     selector.SelectSelectorConfig(
-                        options=list(DSO.keys()),
+                        options=available_dsos,
                         mode=selector.SelectSelectorMode.DROPDOWN,
                     )
                 ),
@@ -88,8 +88,8 @@ class TariffIQConfigFlow(ConfigFlow, domain=DOMAIN):
             self._abort_if_unique_id_configured()
 
             # dso and model validation
-            if self.data[CONF_DSO] not in list(DSO.keys()):
-                _errors[CONF_DSO] = "invalid_dso"
+            if self.data[CONF_DSO_AND_MODEL] not in list(available_dsos):
+                _errors[CONF_DSO_AND_MODEL] = "invalid_dso_and_model"
 
             if _errors:
                 return self.async_show_form(
@@ -99,52 +99,10 @@ class TariffIQConfigFlow(ConfigFlow, domain=DOMAIN):
                     last_step=False,
                 )
 
-            return await self.async_step_dso_model()
-
-        return self.async_show_form(
-            step_id="user",
-            data_schema=_schema,
-            errors=_errors,
-            last_step=False,
-        )
-
-    async def async_step_dso_model(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
-        """DSO model step."""
-        _errors: dict[str, str] = {}
-
-        available_models = DSO[self.data[CONF_DSO]].get("models", {Default: {}}).keys()
-
-        _schema = vol.Schema(
-            {
-                vol.Required(CONF_DSO_MODEL): selector.SelectSelector(
-                    selector.SelectSelectorConfig(
-                        options=list(available_models),
-                        mode=selector.SelectSelectorMode.DROPDOWN,
-                    )
-                ),
-            }
-        )
-
-        if user_input is not None:
-            self.data.update(user_input)
-
-            if self.data[CONF_DSO_MODEL] not in list(available_models):
-                _errors[CONF_DSO_MODEL] = "invalid_dso_model"
-
-            if _errors:
-                return self.async_show_form(
-                    step_id="dso_model",
-                    data_schema=_schema,
-                    errors=_errors,
-                    last_step=False,
-                )
-
             return await self.async_step_dso_fuse_size()
 
         return self.async_show_form(
-            step_id="dso_model",
+            step_id="user",
             data_schema=_schema,
             errors=_errors,
             last_step=False,
@@ -156,17 +114,14 @@ class TariffIQConfigFlow(ConfigFlow, domain=DOMAIN):
         """DSO fuse step."""
         _errors: dict[str, str] = {}
 
-        available_fuses = (
-            DSO[self.data[CONF_DSO]]["models"][self.data[CONF_DSO_MODEL]]
-            .get("fuse_sizes", {Default: {}})
-            .keys()
-        )
+        # Get available fuse sizes for the selected DSO and model
+        available_fuses = get_dso_fuse_sizes(self.data[CONF_DSO_AND_MODEL])
 
         _schema = vol.Schema(
             {
                 vol.Required(CONF_FUSE_SIZE): selector.SelectSelector(
                     selector.SelectSelectorConfig(
-                        options=list(available_fuses),
+                        options=available_fuses,
                         mode=selector.SelectSelectorMode.DROPDOWN,
                     )
                 ),
