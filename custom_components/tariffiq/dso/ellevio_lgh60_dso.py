@@ -26,5 +26,4 @@ class EllevioLgh60DSO(DSOBase):
     @classmethod
     def tariff_active(cls) -> bool:
         """Determine if tariff is active."""
-        # Alla månader, 22-06 full tariff, 07-21 halv tariff
-        return True
+        return False

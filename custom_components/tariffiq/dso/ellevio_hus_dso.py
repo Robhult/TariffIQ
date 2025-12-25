@@ -5,6 +5,7 @@ This module provides the EllevioHusDSO class for handling
 Ellevio Hus specific tariff calculations and configurations.
 """
 
+from datetime import datetime
 from typing import ClassVar
 
 from .dsobase import DSOBase
@@ -41,5 +42,6 @@ class EllevioHusDSO(DSOBase):
     @classmethod
     def tariff_active(cls) -> bool:
         """Determine if tariff is active."""
-        # Alla månader, 22-06 full tariff, 07-21 halv tariff
-        return True
+        now = datetime.now()  # noqa: DTZ005
+
+        return now.hour in range(7, 21)
