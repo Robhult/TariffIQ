@@ -164,6 +164,11 @@ class TariffIQConfigFlow(ConfigFlow, domain=DOMAIN):
                         domain="sensor",
                         device_class="power",
                         multiple=False,
+                        filter=selector.EntityFilterSelectorConfig(
+                            integration={
+                                "not": [DOMAIN]
+                            }  # Exclude TariffIQ sensors # pyright: ignore[reportArgumentType]  # noqa: E501
+                        ),
                     )
                 ),
                 vol.Required(CONF_ENERGY_SENSOR): selector.EntitySelector(
@@ -171,6 +176,11 @@ class TariffIQConfigFlow(ConfigFlow, domain=DOMAIN):
                         domain="sensor",
                         device_class="energy",
                         multiple=False,
+                        filter=selector.EntityFilterSelectorConfig(
+                            integration={
+                                "not": [DOMAIN]
+                            }  # Exclude TariffIQ sensors # pyright: ignore[reportArgumentType]  # noqa: E501
+                        ),
                     )
                 ),
                 # vol.Optional(CONF_PRICING_ENTITY): selector.SelectSelector(
