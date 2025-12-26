@@ -66,7 +66,7 @@ class TariffIQConfigFlow(ConfigFlow, domain=DOMAIN):
         default_name = f"TariffIQ_{secrets.token_hex(4)}"
 
         # Get available DSOs from registry
-        available_dsos = get_available_dsos()
+        available_dsos = sorted(get_available_dsos())
 
         _schema = vol.Schema(
             {
@@ -99,7 +99,7 @@ class TariffIQConfigFlow(ConfigFlow, domain=DOMAIN):
                     last_step=False,
                 )
 
-            return await self.async_step_dso_fuse_size()
+            return await self.async_step_fuse_size()
 
         return self.async_show_form(
             step_id="user",
@@ -108,7 +108,7 @@ class TariffIQConfigFlow(ConfigFlow, domain=DOMAIN):
             last_step=False,
         )
 
-    async def async_step_dso_fuse_size(
+    async def async_step_fuse_size(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """DSO fuse step."""
@@ -136,7 +136,7 @@ class TariffIQConfigFlow(ConfigFlow, domain=DOMAIN):
 
             if _errors:
                 return self.async_show_form(
-                    step_id="dso_fuse_size",
+                    step_id="fuse_size",
                     data_schema=_schema,
                     errors=_errors,
                     last_step=False,
@@ -145,7 +145,7 @@ class TariffIQConfigFlow(ConfigFlow, domain=DOMAIN):
             return await self.async_step_sensor()
 
         return self.async_show_form(
-            step_id="dso_fuse_size",
+            step_id="fuse_size",
             data_schema=_schema,
             errors=_errors,
             last_step=False,
