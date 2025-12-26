@@ -12,6 +12,8 @@ from typing import TYPE_CHECKING
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 
+from custom_components.tariffiq.coordinator import TariffIQDataCoordinator
+
 from .const import DATA_HASS_CONFIG, DOMAIN
 from .services import async_setup_services
 
@@ -40,8 +42,17 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
 ) -> bool:
     """Set up TariffIQ."""
-    hass.data.setdefault(DOMAIN, {})
+    # Create coordinator
+    coordinator = TariffIQDataCoordinator(hass, config_entry)
 
+    # Fetch initial data
+    await coordinator.async_config_entry_first_refresh()
+
+    # Store coordinator
+    hass.data.setdefault(DOMAIN, {})
+    hass.data[DOMAIN][config_entry.entry_id] = coordinator
+
+    # Forward setup to platforms
     await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)
 
     return True
@@ -54,4 +65,9 @@ async def async_update_options(hass: HomeAssistant, config_entry: ConfigEntry) -
 
 async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-    return await hass.config_entries.async_unload_platforms(config_entry, PLATFORMS)
+    if unload_ok := await hass.config_entries.async_unload_platforms(
+        config_entry, PLATFORMS
+    ):
+        hass.data[DOMAIN].pop(config_entry.entry_id)
+
+    return unload_ok

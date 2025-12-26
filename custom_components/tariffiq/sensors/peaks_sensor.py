@@ -18,6 +18,8 @@ if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
 
+    from custom_components.tariffiq.coordinator import TariffIQDataCoordinator
+
 
 class TariffIQPeaksSensor(SensorBase, RestoreEntity):
     """TariffIQ Peaks Sensor class."""
@@ -31,11 +33,12 @@ class TariffIQPeaksSensor(SensorBase, RestoreEntity):
         self,
         hass: HomeAssistant,
         entry: ConfigEntry,
+        coordinator: TariffIQDataCoordinator,
     ) -> None:
         """Initialize the peak sensor."""
         self.name = "Peaks"
 
-        super().__init__(hass, entry, "peaks")
+        super().__init__(hass, entry, coordinator, "peaks")
 
     @property
     def extra_state_attributes(self) -> dict:

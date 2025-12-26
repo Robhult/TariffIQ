@@ -10,9 +10,11 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 
+from custom_components.tariffiq.sensors.fixed_cost_sensor import TariffIQFixedCostSensor
 from custom_components.tariffiq.sensors.peaks_sensor import TariffIQPeaksSensor
 
 from .const import (
+    DOMAIN,
     TARIFF_OPTIONS,
 )
 
@@ -21,6 +23,7 @@ if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+    from custom_components.tariffiq.coordinator import TariffIQDataCoordinator
     from custom_components.tariffiq.sensors.sensorbase import SensorBase
 
 COST_SENSORS: tuple[SensorEntityDescription, ...] = (
@@ -57,8 +60,10 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the TariffIQ sensor."""
+    coordinator: TariffIQDataCoordinator = hass.data[DOMAIN][entry.entry_id]
     entities: list[SensorBase] = []
 
-    entities.append(TariffIQPeaksSensor(hass, entry))
+    entities.append(TariffIQPeaksSensor(hass, entry, coordinator))
+    entities.append(TariffIQFixedCostSensor(hass, entry, coordinator))
 
     async_add_entities(entities)

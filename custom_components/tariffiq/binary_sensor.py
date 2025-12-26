@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from custom_components.tariffiq.binary_sensors.tariff_active_binary_sensor import (
     TariffIQTariffActiveBinarySensor,
 )
+from custom_components.tariffiq.const import DOMAIN
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
@@ -16,6 +17,7 @@ if TYPE_CHECKING:
     from custom_components.tariffiq.binary_sensors.binary_sensorbase import (
         BinarySensorBase,
     )
+    from custom_components.tariffiq.coordinator import TariffIQDataCoordinator
 
 
 async def async_setup_entry(
@@ -24,8 +26,9 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the TariffIQ binary sensor."""
+    coordinator: TariffIQDataCoordinator = hass.data[DOMAIN][entry.entry_id]
     entities: list[BinarySensorBase] = []
 
-    entities.append(TariffIQTariffActiveBinarySensor(hass, entry))
+    entities.append(TariffIQTariffActiveBinarySensor(hass, entry, coordinator))
 
     async_add_entities(entities)

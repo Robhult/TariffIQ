@@ -10,14 +10,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from custom_components.tariffiq.binary_sensors.binary_sensorbase import BinarySensorBase
-from custom_components.tariffiq.dso import get_dso_class
-from tariffiq.const import (
-    CONF_DSO_AND_MODEL,
-)
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
+
+    from custom_components.tariffiq.coordinator import TariffIQDataCoordinator
 
 
 class TariffIQTariffActiveBinarySensor(BinarySensorBase):
@@ -29,6 +27,7 @@ class TariffIQTariffActiveBinarySensor(BinarySensorBase):
         self,
         hass: HomeAssistant,
         entry: ConfigEntry,
+        coordinator: TariffIQDataCoordinator,
     ) -> None:
         """Initialize the Tariff Active binary sensor."""
         self.name = "Tariff Active"
@@ -36,10 +35,11 @@ class TariffIQTariffActiveBinarySensor(BinarySensorBase):
         super().__init__(
             hass,
             entry,
+            coordinator,
             key="tariff_active",
         )
 
     @property
     def is_on(self) -> bool:
         """Return true if tariff is active."""
-        return get_dso_class(self.entry.data[CONF_DSO_AND_MODEL]).tariff_active()
+        return self.coordinator.dso_instance.tariff_active()
