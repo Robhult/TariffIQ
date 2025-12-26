@@ -12,6 +12,9 @@ from homeassistant.components.sensor import (
 
 from custom_components.tariffiq.sensors.fixed_cost_sensor import TariffIQFixedCostSensor
 from custom_components.tariffiq.sensors.peaks_sensor import TariffIQPeaksSensor
+from custom_components.tariffiq.sensors.variable_cost_sensor import (
+    TariffIQVariableCostSensor,
+)
 
 from .const import (
     DOMAIN,
@@ -65,5 +68,6 @@ async def async_setup_entry(
 
     entities.append(TariffIQPeaksSensor(hass, entry, coordinator))
     entities.append(TariffIQFixedCostSensor(hass, entry, coordinator))
+    entities.append(TariffIQVariableCostSensor(hass, entry, coordinator))
 
     async_add_entities(entities)

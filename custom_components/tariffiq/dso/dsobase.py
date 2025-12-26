@@ -40,10 +40,13 @@ class DSOBase(ABC):
             datetime(now.year + 1, 1, 1) - datetime(now.year, 1, 1)  # noqa: DTZ001
         ).total_seconds() // 3600
 
-        return self.selected_fees.get("fixed_fee", 0) * (
-            current_hour / total_hours_in_year
-        )  # Return fixed cost based on hours elapsed in the year
+        fixed_fee = self.selected_fees.get("fixed_fee", 0)
 
-    def variable_cost(self, sensor: str) -> float:
-        """Return the variable cost for this DSO."""
-        return 0.0
+        return fixed_fee * current_hour / total_hours_in_year
+
+    def variable_cost(self, energy_value: float) -> float:
+        """Return the variable cost for this DSO based on energy consumption."""
+        # Calculate variable cost based on energy consumption
+        transfer_fee = self.selected_fees.get("transfer_fee", 0)
+
+        return energy_value * transfer_fee
