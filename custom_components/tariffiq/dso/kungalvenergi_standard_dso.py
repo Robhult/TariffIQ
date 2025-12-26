@@ -50,7 +50,7 @@ class KungalvEnergiStandardDSO(DSOBase):
     }
     tariff_schedule: ClassVar[dict] = {
         "months": [1, 2, 3, 11, 12],
-        "hours": list(range(7, 22)),
+        "hours": list(range(7, 21)),
     }
 
     @classmethod

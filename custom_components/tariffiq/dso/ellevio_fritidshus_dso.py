@@ -38,10 +38,20 @@ class EllevioFritidsHusDSO(DSOBase):
             "tariff_cost": 81.25,
         },
     }
+    tariff_schedule: ClassVar[dict] = {
+        "full": {
+            "months": list(range(1, 13)),
+            "hours": list(range(6, 22)),
+        },
+        "half": {
+            "months": list(range(1, 13)),
+            "hours": [22, 23, 0, 1, 2, 3, 4, 5],
+        },
+    }
 
     @classmethod
     def tariff_active(cls) -> bool:
         """Determine if tariff is active."""
         now = datetime.now()  # noqa: DTZ005
 
-        return now.hour in range(7, 21)
+        return now.hour in cls.tariff_schedule["full"]["hours"]
