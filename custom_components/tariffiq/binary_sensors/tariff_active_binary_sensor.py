@@ -40,6 +40,13 @@ class TariffIQTariffActiveBinarySensor(BinarySensorBase):
         )
 
     @property
+    def extra_state_attributes(self) -> dict:
+        """Return the state attributes."""
+        return {
+            "schedule": self.coordinator.data.get("tariff_schedule", "N/A"),
+        }
+
+    @property
     def is_on(self) -> bool:
         """Return true if tariff is active."""
         if not self.coordinator.data:

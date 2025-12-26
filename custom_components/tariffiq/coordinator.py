@@ -82,6 +82,7 @@ class TariffIQDataCoordinator(DataUpdateCoordinator):
 
             return {
                 "tariff_active": self.dso_instance.tariff_active(),
+                "tariff_schedule": self.dso_instance.tariff_schedule,
                 "fixed_cost": fixed_cost,
                 "variable_cost": variable_cost,
                 "peaks": 0.0,  # Placeholder for peaks value

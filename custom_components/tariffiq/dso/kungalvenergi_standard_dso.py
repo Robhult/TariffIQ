@@ -48,10 +48,17 @@ class KungalvEnergiStandardDSO(DSOBase):
             "tariff_cost": 57.17,
         },
     }
+    tariff_schedule: ClassVar[dict] = {
+        "months": [1, 2, 3, 11, 12],
+        "hours": list(range(7, 22)),
+    }
 
     @classmethod
     def tariff_active(cls) -> bool:
         """Determine if tariff is active."""
         now = datetime.now()  # noqa: DTZ005
 
-        return now.month in [11, 12, 1, 2, 3] and now.hour in range(7, 22)
+        return (
+            now.month in cls.tariff_schedule["months"]
+            and now.hour in cls.tariff_schedule["hours"]
+        )

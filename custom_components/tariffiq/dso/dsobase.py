@@ -14,6 +14,7 @@ class DSOBase(ABC):
     name: ClassVar[str]
     currency: ClassVar[str]
     fees: ClassVar[dict]  # Fuse size: fees
+    tariff_schedule: ClassVar[dict] = {}
 
     selected_fees: dict
 
