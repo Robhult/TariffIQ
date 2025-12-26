@@ -42,4 +42,13 @@ class TariffIQTariffActiveBinarySensor(BinarySensorBase):
     @property
     def is_on(self) -> bool:
         """Return true if tariff is active."""
-        return self.coordinator.dso_instance.tariff_active()
+        if not self.coordinator.data:
+            return False
+        return self.coordinator.data.get("tariff_active", False)
+
+    @property
+    def available(self) -> bool:
+        """Return if entity is available."""
+        return (
+            self.coordinator.last_update_success and self.coordinator.data is not None
+        )

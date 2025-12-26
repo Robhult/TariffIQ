@@ -42,4 +42,21 @@ class TariffIQPeaksCostSensor(SensorBase, RestoreEntity):
     @property
     def native_unit_of_measurement(self) -> str | None:
         """Return the unit of measurement (currency) from DSO."""
-        return self.dso_instance.currency
+        if not self.coordinator.data:
+            return None
+        return self.coordinator.data.get("currency")
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the peaks cost value."""
+        if not self.coordinator.data:
+            return None
+        return self.coordinator.data.get("peaks_cost")
+
+    @property
+    def available(self) -> bool:
+        """Return if entity is available."""
+        return (
+            self.coordinator.last_update_success 
+            and self.coordinator.data is not None
+        )

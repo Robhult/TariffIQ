@@ -43,3 +43,7 @@ class DSOBase(ABC):
         return self.selected_fees.get("fixed_fee", 0) * (
             current_hour / total_hours_in_year
         )  # Return fixed cost based on hours elapsed in the year
+
+    def variable_cost(self, sensor: str) -> float:
+        """Return the variable cost for this DSO."""
+        return 0.0

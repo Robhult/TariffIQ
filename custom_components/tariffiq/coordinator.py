@@ -9,7 +9,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from custom_components.tariffiq.dso.dsobase import DSOBase
 
-from .const import CONF_DSO_AND_MODEL, CONF_FUSE_SIZE
+from .const import CONF_DSO_AND_MODEL, CONF_ENERGY_SENSOR, CONF_FUSE_SIZE
 from .dso import get_dso_class
 from .helpers import LOGGER
 
@@ -50,6 +50,11 @@ class TariffIQDataCoordinator(DataUpdateCoordinator):
             return {
                 "tariff_active": self.dso_instance.tariff_active(),
                 "fixed_cost": self.dso_instance.fixed_cost(),
+                "variable_cost": self.dso_instance.variable_cost(
+                    self.entry.data[CONF_ENERGY_SENSOR]
+                ),
+                "peaks": 0.0,  # Placeholder for peaks value
+                "peaks_cost": 0.0,  # Placeholder for peaks cost value
                 "fees": self.dso_instance.selected_fees,
                 "currency": self.dso_instance.currency,
                 "fuse_size": self.entry.data[CONF_FUSE_SIZE],

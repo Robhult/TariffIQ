@@ -40,6 +40,22 @@ class TariffIQVariableCostSensor(SensorBase, RestoreEntity):
         super().__init__(hass, entry, coordinator, "variable_cost")
 
     @property
+    def native_value(self) -> float | None:
+        """Return the variable cost value."""
+        if not self.coordinator.data:
+            return None
+        return self.coordinator.data.get("variable_cost")
+
+    @property
     def native_unit_of_measurement(self) -> str | None:
         """Return the unit of measurement (currency) from DSO."""
-        return self.dso_instance.currency
+        if not self.coordinator.data:
+            return None
+        return self.coordinator.data.get("currency")
+
+    @property
+    def available(self) -> bool:
+        """Return if entity is available."""
+        return (
+            self.coordinator.last_update_success and self.coordinator.data is not None
+        )
