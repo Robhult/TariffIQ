@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from homeassistant.const import Platform
+from homeassistant.const import EVENT_HOMEASSISTANT_STARTED, Platform
 from homeassistant.core import HomeAssistant
 
 from custom_components.tariffiq.coordinator import TariffIQDataCoordinator
@@ -42,11 +42,28 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
 ) -> bool:
     """Set up TariffIQ."""
+    # Check if Home Assistant has already started
+    if hass.is_running:
+        # HA already started, setup coordinator immediately
+        await _setup_coordinator(hass, config_entry)
+    else:
+        # Wait for HA to fully start before setting up coordinator
+        async def setup_on_start(_event: object) -> None:
+            """Set up coordinator when HA starts."""
+            await _setup_coordinator(hass, config_entry)
+
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, setup_on_start)
+
+    return True
+
+
+async def _setup_coordinator(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
+    """Set up the coordinator and platforms."""
     # Create coordinator
     coordinator = TariffIQDataCoordinator(hass, config_entry)
 
-    # Fetch initial data
-    await coordinator.async_config_entry_first_refresh()
+    # Fetch initial data using the newer method
+    await coordinator.async_refresh()
 
     # Store coordinator
     hass.data.setdefault(DOMAIN, {})
@@ -54,8 +71,6 @@ async def async_setup_entry(
 
     # Forward setup to platforms
     await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)
-
-    return True
 
 
 async def async_update_options(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
