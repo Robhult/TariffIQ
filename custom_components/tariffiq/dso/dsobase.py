@@ -28,6 +28,16 @@ class DSOBase(ABC):
         return list(cls.fees.keys())
 
     @classmethod
+    def tariff_starts_at(cls) -> datetime | None:
+        """Return the start time of the tariff period."""
+        return None
+
+    @classmethod
+    def tariff_ends_at(cls) -> datetime | None:
+        """Return the end time of the tariff period."""
+        return None
+
+    @classmethod
     @abstractmethod
     def tariff_active(cls) -> bool:
         """Determine if tariff is currently active."""

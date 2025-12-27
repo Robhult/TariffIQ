@@ -50,6 +50,47 @@ class EllevioFritidsHusDSO(DSOBase):
     }
 
     @classmethod
+    def tariff_starts_at(cls, current_time: datetime | None = None) -> datetime | None:
+        """Return the start time of the tariff period."""
+        now = current_time or datetime.now()  # noqa: DTZ005
+
+        if (
+            now.month in cls.tariff_schedule["full"]["months"]
+            and now.replace(day=now.day + 1).month
+            in cls.tariff_schedule["full"]["months"]
+        ):
+            day = (
+                now.day
+                if now.hour < cls.tariff_schedule["full"]["hours"][0]
+                else now.day + 1
+            )
+
+            return now.replace(
+                day=day,
+                hour=cls.tariff_schedule["full"]["hours"][0],
+                minute=0,
+                second=0,
+                microsecond=0,
+            )
+
+        return None
+
+    @classmethod
+    def tariff_ends_at(cls, current_time: datetime | None = None) -> datetime | None:
+        """Return the end time of the tariff period."""
+        now = current_time or datetime.now()  # noqa: DTZ005
+
+        if now.month in cls.tariff_schedule["full"]["months"]:
+            return now.replace(
+                hour=cls.tariff_schedule["full"]["hours"][-1] + 1,
+                minute=0,
+                second=0,
+                microsecond=0,
+            )
+
+        return None
+
+    @classmethod
     def tariff_active(cls) -> bool:
         """Determine if tariff is active."""
         now = datetime.now()  # noqa: DTZ005

@@ -43,6 +43,8 @@ class TariffIQTariffActiveBinarySensor(BinarySensorBase):
     def extra_state_attributes(self) -> dict:
         """Return the state attributes."""
         return {
+            "starts_at": self.coordinator.data.get("tariff_starts_at", "N/A"),
+            "ends_at": self.coordinator.data.get("tariff_ends_at", "N/A"),
             "schedule": self.coordinator.data.get("tariff_schedule", "N/A"),
         }
 
