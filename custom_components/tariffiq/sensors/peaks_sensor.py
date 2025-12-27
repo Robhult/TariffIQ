@@ -44,33 +44,32 @@ class TariffIQPeaksSensor(SensorBase, RestoreEntity):
     def extra_state_attributes(self) -> dict:
         """Return the state attributes."""
         return {
-            "expected_peak": 0.0,  # Placeholder for expected peak value
+            "current_hour_consumption": self.coordinator.data.get(
+                "current_hour_consumption", 0.0
+            ),
+            "expected_peak": self.coordinator.data.get("expected_peak", 0.0),
             "peaks_dictionary": {
                 "17h12": 0.1,
                 "12h13": 0.2,
                 "06h14": 0.3,
-            },  # Placeholder for peaks dictionary. Current month
+            },  # TODO: Placeholder for peaks dictionary. Current month
             "peaks_history": {
                 "2025-12": [0.1, 0.2, 0.3],
                 "2025-11": [0.1, 0.2, 0.3],
-            },  # Placeholder for peaks history. 12 months back
+            },  # TODO: Placeholder for peaks history. 12 months back
         }
 
     @property
     def state(self) -> float:
         """Return the state of the peak sensor."""
-        if not self.coordinator.data:
-            return 0.0
         return self.coordinator.data.get("peaks", 0.0)
 
     @property
     def available(self) -> bool:
         """Return if entity is available."""
         return (
-            self.coordinator.last_update_success 
-            and self.coordinator.data is not None
+            self.coordinator.last_update_success and self.coordinator.data is not None
         )
 
     async def async_update(self) -> None:
         """Update the peak sensor state."""
-        pass
