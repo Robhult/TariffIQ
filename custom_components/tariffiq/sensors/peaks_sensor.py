@@ -47,7 +47,9 @@ class TariffIQPeaksSensor(SensorBase, RestoreEntity):
             "current_hour_consumption": self.coordinator.data.get(
                 "current_hour_consumption", 0.0
             ),
-            "expected_peak": self.coordinator.data.get("expected_peak", 0.0),
+            "predicted_consumption": self.coordinator.data.get(
+                "predicted_consumption", 0.0
+            ),
             "peaks_dictionary": {
                 "17h12": 0.1,
                 "12h13": 0.2,

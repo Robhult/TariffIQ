@@ -137,7 +137,7 @@ class TariffIQDataCoordinator(DataUpdateCoordinator):
             power_value = self._get_power_sensor_value()
 
             current_hour_consumption = await self._get_current_hour_consumption()
-            expected_peak = (
+            predicted_consumption = (
                 current_hour_consumption + power_value / 1000
                 if self.dso_instance.tariff_active()
                 else 0.0
@@ -159,7 +159,9 @@ class TariffIQDataCoordinator(DataUpdateCoordinator):
                 "current_hour_consumption": (
                     f"{current_hour_consumption} {UnitOfEnergy.KILO_WATT_HOUR}",
                 ),
-                "expected_peak": f"{expected_peak} {UnitOfEnergy.KILO_WATT_HOUR}",
+                "predicted_consumption": (
+                    f"{predicted_consumption} {UnitOfEnergy.KILO_WATT_HOUR}"
+                ),
                 # DSO Cost Sensors
                 "fixed_cost": fixed_cost,
                 "variable_cost": variable_cost,
