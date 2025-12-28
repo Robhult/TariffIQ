@@ -7,6 +7,9 @@ from homeassistant.components.recorder.statistics import (
     statistics_during_period,
 )
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import (
+    UnitOfEnergy,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.recorder import get_instance
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -110,7 +113,7 @@ class TariffIQDataCoordinator(DataUpdateCoordinator):
             await recorder_instance.async_add_executor_job(
                 statistics_during_period,
                 self.hass,
-                dt_util.now() - timedelta(hours=2),
+                dt_util.now() - timedelta(days=1),
                 None,
                 {self.entry.data[CONF_ENERGY_SENSOR]},
                 "hour",
@@ -153,8 +156,10 @@ class TariffIQDataCoordinator(DataUpdateCoordinator):
                 "tariff_schedule": self.dso_instance.tariff_schedule,
                 # Peaks Sensor
                 "peaks": 0.0,  # Placeholder for peaks value
-                "current_hour_consumption": current_hour_consumption,
-                "expected_peak": expected_peak,
+                "current_hour_consumption": (
+                    f"{current_hour_consumption} {UnitOfEnergy.KILO_WATT_HOUR}",
+                ),
+                "expected_peak": f"{expected_peak} {UnitOfEnergy.KILO_WATT_HOUR}",
                 # DSO Cost Sensors
                 "fixed_cost": fixed_cost,
                 "variable_cost": variable_cost,
