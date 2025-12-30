@@ -6,6 +6,8 @@
 
 # TariffIQ: The Homeassistant "Integration" for calculating fixed, variable and tariff cost for your Distribution System Operator
 
+<img src="images/TariffIQ%20banner.png" alt="logo" width="256px" height="" />
+
 [TariffIQ](https://github.com/Robhult/TariffIQ) is a custom component for [Home Assistant](https://www.home-assistant.io/) that exposes your current costs for your DSO, and gives you tools to be able to lower your costs by showing when your DSO has tariffs active.
 
 Download and install directly through [HACS (Home Assistant Community Store)](https://hacs.xyz/):
