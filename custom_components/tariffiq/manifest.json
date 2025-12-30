@@ -5,7 +5,9 @@
     "@robhult"
   ],
   "config_flow": true,
-  "dependencies": [],
+  "dependencies": [
+    "recorder"
+  ],
   "documentation": "https://github.com/robhult/tariffiq",
   "integration_type": "device",
   "iot_class": "calculated",
