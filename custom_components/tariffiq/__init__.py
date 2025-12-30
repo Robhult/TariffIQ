@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 
 from homeassistant.const import EVENT_HOMEASSISTANT_STARTED, Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import config_validation as cv
 
 from custom_components.tariffiq.coordinator import TariffIQDataCoordinator
 
@@ -21,6 +22,9 @@ if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.typing import ConfigType
+
+# Configuration schema - since this integration only supports config entries
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 PLATFORMS: list[Platform] = [
     Platform.SENSOR,
