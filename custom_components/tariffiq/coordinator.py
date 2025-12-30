@@ -4,6 +4,7 @@ from datetime import timedelta
 from typing import Any
 
 from homeassistant.components.recorder.statistics import (
+    StatisticsRow,
     statistics_during_period,
 )
 from homeassistant.config_entries import ConfigEntry
@@ -21,6 +22,7 @@ from .const import (
     CONF_DSO_AND_MODEL,
     CONF_ENERGY_SENSOR,
     CONF_FUSE_SIZE,
+    CONF_NAME,
     CONF_POWER_SENSOR,
 )
 from .dso import get_dso_class
@@ -106,23 +108,48 @@ class TariffIQDataCoordinator(DataUpdateCoordinator):
             )
             return 0
 
-    async def _get_current_hour_consumption(self) -> float:
-        # Fetch current hour consumption from recorder statistics
+    async def _get_energy_statistics_for_current_month(
+        self,
+    ) -> list[StatisticsRow]:
+        """Fetch energy statistics for the past day."""
         recorder_instance = get_instance(self.hass)
-        stats = (
+
+        return (
             await recorder_instance.async_add_executor_job(
                 statistics_during_period,
                 self.hass,
-                dt_util.now() - timedelta(days=1),
+                dt_util.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0),
                 None,
                 {self.entry.data[CONF_ENERGY_SENSOR]},
                 "hour",
                 None,
-                {"state"},
+                {"change", "max", "mean", "min", "state", "sum"},
             )
         ).get(self.entry.data[CONF_ENERGY_SENSOR], [])
 
-        LOGGER.debug("Fetched statistics: %s", stats)
+    async def _get_energy_statistics_12_months(self) -> list[StatisticsRow]:
+        """Fetch energy statistics for the past 12 months."""
+        recorder_instance = get_instance(self.hass)
+        start_time = dt_util.now().replace(
+            day=1, hour=0, minute=0, second=0, microsecond=0
+        ) - timedelta(days=365)
+
+        return (
+            await recorder_instance.async_add_executor_job(
+                statistics_during_period,
+                self.hass,
+                start_time,
+                None,
+                {self.entry.data[CONF_ENERGY_SENSOR]},
+                "hour",
+                None,
+                {"change", "max", "mean", "min", "state", "sum"},
+            )
+        ).get(self.entry.data[CONF_ENERGY_SENSOR], [])
+
+    async def _get_current_hour_consumption(self) -> float:
+        # Fetch current hour consumption from recorder statistics
+        stats = await self._get_energy_statistics_for_current_month()
 
         stats_value = stats.pop().get("state", 0.0) if stats else 0.0
         return self._get_energy_sensor_value() - (stats_value or 0.0)
@@ -130,22 +157,26 @@ class TariffIQDataCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch data from the DSO."""
         try:
-            LOGGER.debug("Fetching data from DSO instance")
+            LOGGER.debug(
+                "Fetching data from DSO instance %s", self.entry.data[CONF_NAME]
+            )
 
             # Fetch energy sensor value
             energy_value = self._get_energy_sensor_value()
             power_value = self._get_power_sensor_value()
 
+            stats_current_month = await self._get_energy_statistics_for_current_month()
+
             current_hour_consumption = await self._get_current_hour_consumption()
-            predicted_consumption = (
-                current_hour_consumption + power_value / 1000
-                if self.dso_instance.tariff_active()
-                else 0.0
+            predicted_consumption = self.dso_instance.predicted_consumption(
+                current_hour_consumption, power_value
             )
+            peaks = self.dso_instance.peak_value(stats_current_month)  # pyright: ignore[reportAttributeAccessIssue]
+            peaks_dict = self.dso_instance.observed_peak(stats_current_month)  # pyright: ignore[reportAttributeAccessIssue]
 
             fixed_cost = self.dso_instance.fixed_cost()
             variable_cost = self.dso_instance.variable_cost(energy_value)
-            peaks_cost = 0.0  # TODO: Placeholder for peaks cost calculation
+            peaks_cost = self.dso_instance.tariff_cost() * peaks
             total_dso_cost = fixed_cost + variable_cost + peaks_cost
 
             data = {
@@ -155,17 +186,18 @@ class TariffIQDataCoordinator(DataUpdateCoordinator):
                 "tariff_ends_at": self.dso_instance.tariff_ends_at(),
                 "tariff_schedule": self.dso_instance.tariff_schedule,
                 # Peaks Sensor
-                "peaks": 0.0,  # Placeholder for peaks value
+                "peaks": peaks,
                 "current_hour_consumption": (
                     f"{current_hour_consumption} {UnitOfEnergy.KILO_WATT_HOUR}",
                 ),
                 "predicted_consumption": (
                     f"{predicted_consumption} {UnitOfEnergy.KILO_WATT_HOUR}"
                 ),
+                "peaks_dictionary": peaks_dict,
                 # DSO Cost Sensors
                 "fixed_cost": fixed_cost,
                 "variable_cost": variable_cost,
-                "peaks_cost": 0.0,  # Placeholder for peaks cost value
+                "peaks_cost": peaks_cost,  # Placeholder for peaks cost value
                 "total_dso_cost": total_dso_cost,
                 # Consumption tracking data
                 "energy_value": energy_value,  # Current energy reading

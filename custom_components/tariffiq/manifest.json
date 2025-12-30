@@ -11,10 +11,10 @@
   "documentation": "https://github.com/robhult/tariffiq",
   "integration_type": "device",
   "iot_class": "calculated",
+  "issue_tracker": "https://github.com/robhult/tariffiq/issues",
   "loggers": [
     "tariffiq"
   ],
   "requirements": [],
-  "issue_tracker": "https://github.com/robhult/tariffiq/issues",
   "version": "0.1.0"
 }

@@ -3,15 +3,17 @@ Kungälv Energi DSO model implementation.
 
 This module provides the EllevioFritidsHusDSO class for handling
 Ellevio Fritidshus specific tariff calculations and configurations.
+
+https://www.ellevio.se/abonnemang/elnatspriser/fritidshus/
 """
 
-from datetime import datetime
 from typing import ClassVar
 
 from .dsobase import DSOBase
+from .models.average_of_x_days_model import AverageOfXDaysModel
 
 
-class EllevioFritidsHusDSO(DSOBase):
+class EllevioFritidsHusDSO(DSOBase, AverageOfXDaysModel):
     """Ellevio Fritidshus DSO model."""
 
     name: ClassVar[str] = "Ellevio Fritidshus"
@@ -39,60 +41,13 @@ class EllevioFritidsHusDSO(DSOBase):
         },
     }
     tariff_schedule: ClassVar[dict] = {
-        "full": {
-            "months": list(range(1, 13)),
-            "hours": list(range(6, 22)),
-        },
-        "half": {
-            "months": list(range(1, 13)),
-            "hours": [22, 23, 0, 1, 2, 3, 4, 5],
-        },
+        "months": list(range(1, 13)),
+        "hours": list(range(6, 22)),
     }
 
     @classmethod
-    def tariff_starts_at(cls, current_time: datetime | None = None) -> datetime | None:
-        """Return the start time of the tariff period."""
-        now = current_time or datetime.now()  # noqa: DTZ005
+    def predicted_consumption(cls, energy_hour: float, power: int) -> float:
+        """Return the expected peak value."""
+        consumption = energy_hour + power / 1000
 
-        if (
-            now.month in cls.tariff_schedule["full"]["months"]
-            and now.replace(day=now.day + 1).month
-            in cls.tariff_schedule["full"]["months"]
-        ):
-            day = (
-                now.day
-                if now.hour < cls.tariff_schedule["full"]["hours"][0]
-                else now.day + 1
-            )
-
-            return now.replace(
-                day=day,
-                hour=cls.tariff_schedule["full"]["hours"][0],
-                minute=0,
-                second=0,
-                microsecond=0,
-            )
-
-        return None
-
-    @classmethod
-    def tariff_ends_at(cls, current_time: datetime | None = None) -> datetime | None:
-        """Return the end time of the tariff period."""
-        now = current_time or datetime.now()  # noqa: DTZ005
-
-        if now.month in cls.tariff_schedule["full"]["months"]:
-            return now.replace(
-                hour=cls.tariff_schedule["full"]["hours"][-1] + 1,
-                minute=0,
-                second=0,
-                microsecond=0,
-            )
-
-        return None
-
-    @classmethod
-    def tariff_active(cls) -> bool:
-        """Determine if tariff is active."""
-        now = datetime.now()  # noqa: DTZ005
-
-        return now.hour in cls.tariff_schedule["full"]["hours"]
+        return consumption if cls.tariff_active() else consumption * 0.5

@@ -26,6 +26,7 @@ class TariffIQPeaksSensor(SensorBase, RestoreEntity):
 
     device_class: SensorDeviceClass = SensorDeviceClass.ENERGY
     unit_of_measurement: str = UnitOfEnergy.KILO_WATT_HOUR
+    _sensor_option_display_precision: int = 2
     translation_key: str = "peaks"
     icon: str = "mdi:chart-line"
 
@@ -50,15 +51,7 @@ class TariffIQPeaksSensor(SensorBase, RestoreEntity):
             "predicted_consumption": self.coordinator.data.get(
                 "predicted_consumption", 0.0
             ),
-            "peaks_dictionary": {
-                "17h12": 0.1,
-                "12h13": 0.2,
-                "06h14": 0.3,
-            },  # TODO: Placeholder for peaks dictionary. Current month
-            "peaks_history": {
-                "2025-12": [0.1, 0.2, 0.3],
-                "2025-11": [0.1, 0.2, 0.3],
-            },  # TODO: Placeholder for peaks history. 12 months back
+            "peaks_dictionary": self.coordinator.data.get("peaks_dictionary", {}),
         }
 
     @property

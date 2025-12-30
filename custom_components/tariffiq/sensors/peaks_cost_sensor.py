@@ -57,6 +57,5 @@ class TariffIQPeaksCostSensor(SensorBase, RestoreEntity):
     def available(self) -> bool:
         """Return if entity is available."""
         return (
-            self.coordinator.last_update_success 
-            and self.coordinator.data is not None
+            self.coordinator.last_update_success and self.coordinator.data is not None
         )
