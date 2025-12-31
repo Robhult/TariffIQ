@@ -1,7 +1,7 @@
 """Base DSO class for TariffIQ."""
 
 from abc import ABC
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import ClassVar
 
 
@@ -29,15 +29,17 @@ class DSOBase(ABC):
     def tariff_starts_at(cls, current_time: datetime | None = None) -> datetime | None:
         """Return the start time of the tariff period."""
         now = current_time or datetime.now()  # noqa: DTZ005
+        next_day = now + timedelta(days=1)
 
         if (
             now.month in cls.tariff_schedule["months"]
-            and now.replace(day=now.day + 1).month in cls.tariff_schedule["months"]
+            and next_day.month in cls.tariff_schedule["months"]
         ):
-            day = now.day if now.hour < cls.tariff_schedule["hours"][0] else now.day + 1
+            target_date = (
+                now if now.hour < cls.tariff_schedule["hours"][0] else next_day
+            )
 
-            return now.replace(
-                day=day,
+            return target_date.replace(
                 hour=cls.tariff_schedule["hours"][0],
                 minute=0,
                 second=0,

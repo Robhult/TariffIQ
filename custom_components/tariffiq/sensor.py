@@ -23,14 +23,13 @@ from .const import (
     DOMAIN,
     TARIFF_OPTIONS,
 )
+from .coordinator import TariffIQDataCoordinator  # noqa: TC001
+from .sensors.sensorbase import SensorBase  # noqa: TC001
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
-
-    from custom_components.tariffiq.coordinator import TariffIQDataCoordinator
-    from custom_components.tariffiq.sensors.sensorbase import SensorBase
 
 COST_SENSORS: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
