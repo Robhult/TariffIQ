@@ -15,13 +15,13 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from custom_components.tariffiq.coordinator import TariffIQDataCoordinator
-from tariffiq.const import (
+from custom_components.tariffiq.const import (
     CONF_DSO_AND_MODEL,
     CONF_FUSE_SIZE,
     CONF_NAME,
     DOMAIN,
 )
+from custom_components.tariffiq.coordinator import TariffIQDataCoordinator
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
