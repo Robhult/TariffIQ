@@ -24,9 +24,9 @@ if TYPE_CHECKING:
 class TariffIQPeaksSensor(SensorBase, RestoreEntity):
     """TariffIQ Peaks Sensor class."""
 
-    device_class: SensorDeviceClass = SensorDeviceClass.ENERGY
-    unit_of_measurement: str = UnitOfEnergy.KILO_WATT_HOUR
-    _sensor_option_display_precision: int = 2
+    _attr_device_class: SensorDeviceClass = SensorDeviceClass.ENERGY
+    _attr_unit_of_measurement: str = UnitOfEnergy.KILO_WATT_HOUR
+    _attr_suggested_display_precision: int = 2
     translation_key: str = "peaks"
     icon: str = "mdi:chart-line"
 
