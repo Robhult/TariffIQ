@@ -25,8 +25,8 @@ class TariffIQPeaksSensor(SensorBase, RestoreEntity):
     """TariffIQ Peaks Sensor class."""
 
     device_class: SensorDeviceClass = SensorDeviceClass.ENERGY
-    unit_of_measurement: str = UnitOfEnergy.KILO_WATT_HOUR
-    _sensor_option_display_precision: int = 2
+    native_unit_of_measurement: str = UnitOfEnergy.KILO_WATT_HOUR
+    suggested_display_precision: int = 1
     translation_key: str = "peaks"
     icon: str = "mdi:chart-line"
 
@@ -57,7 +57,10 @@ class TariffIQPeaksSensor(SensorBase, RestoreEntity):
     @property
     def state(self) -> float:
         """Return the state of the peak sensor."""
-        return self.coordinator.data.get("peaks", 0.0)
+        try:
+            return round(self.coordinator.data.get("peaks", 0.0), 1)
+        except (TypeError, ValueError, AttributeError):
+            return 0.0
 
     @property
     def available(self) -> bool:
