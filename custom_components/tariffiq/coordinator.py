@@ -83,7 +83,7 @@ class TariffIQDataCoordinator(DataUpdateCoordinator):
             )
             return 0.0
 
-    def _get_power_sensor_value(self) -> int:
+    def _get_power_sensor_value(self) -> float:
         """Fetch and validate power sensor value."""
         power_sensor_entity_id = self.entry.data[CONF_POWER_SENSOR]
         power_sensor_state = self.hass.states.get(power_sensor_entity_id)
@@ -94,13 +94,13 @@ class TariffIQDataCoordinator(DataUpdateCoordinator):
             "none",
         ]:
             try:
-                return int(power_sensor_state.state)
+                return float(power_sensor_state.state)
             except (ValueError, TypeError):
                 LOGGER.warning(
-                    "Could not convert power sensor state to int: %s",
+                    "Could not convert power sensor state to float: %s",
                     power_sensor_state.state,
                 )
-                return 0
+                return 0.0
         else:
             LOGGER.warning(
                 "Power sensor not available or invalid: %s",

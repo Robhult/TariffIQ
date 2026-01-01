@@ -100,6 +100,6 @@ class DSOBase(ABC):
         return cls.selected_fees.get("tariff_cost", 0.0)
 
     @classmethod
-    def predicted_consumption(cls, energy_hour: float, power: int) -> float:
+    def predicted_consumption(cls, energy_hour: float, power: float) -> float:
         """Return the expected peak value."""
         return energy_hour + power / 1000 if cls.tariff_active() else 0.0
