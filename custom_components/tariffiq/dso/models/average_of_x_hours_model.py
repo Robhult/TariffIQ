@@ -50,7 +50,7 @@ class AverageOfXHoursModel(ModelBase):
             start_time = datetime.fromtimestamp(
                 stat.get("start", 0.0), dt_util.DEFAULT_TIME_ZONE
             )
-            peaks.append({start_time: change})
+            peaks.append({start_time: round(change, 2)})
 
         selected_peaks = sorted(
             peaks,
