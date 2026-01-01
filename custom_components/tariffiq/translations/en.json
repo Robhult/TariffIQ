@@ -36,35 +36,5 @@
         "abort": {
             "already_configured": "This TariffIQ object already exists."
         }
-    },
-    "entity": {
-        "sensor": {
-            "peaks": {
-                "name": "Peaks"
-            },
-            "peaks_cost": {
-                "name": "Peaks Cost"
-            },
-            "fixed_cost": {
-                "name": "Fixed Cost"
-            },
-            "variable_cost": {
-                "name": "Variable Cost"
-            }
-        },
-        "binary_sensor": {
-            "tariff_active": {
-                "name": "Tariff Active"
-            },
-            "no_tariff": {
-                "name": "No Tariff Active"
-            },
-            "low_tariff": {
-                "name": "Low Tariff Active"
-            },
-            "high_tariff": {
-                "name": "High Tariff Active"
-            }
-        }
     }
 }

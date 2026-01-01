@@ -158,7 +158,9 @@ class TariffIQDataCoordinator(DataUpdateCoordinator):
         """Fetch data from the DSO."""
         try:
             LOGGER.debug(
-                "Fetching data from DSO instance %s", self.entry.data[CONF_NAME]
+                "Fetching data from DSO instance %s, %s",
+                self.entry.data[CONF_NAME],
+                self.entry.entry_id,
             )
 
             # Fetch energy sensor value

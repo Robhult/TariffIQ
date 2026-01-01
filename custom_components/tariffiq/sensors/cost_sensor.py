@@ -1,4 +1,4 @@
-"""TariffIQ Variable Cost Sensor integration."""
+"""TariffIQ Cost Sensor integration."""
 
 from __future__ import annotations
 
@@ -8,43 +8,43 @@ from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorStateClass,
 )
-from homeassistant.helpers.restore_state import RestoreEntity
 
 from custom_components.tariffiq.sensors.sensorbase import SensorBase
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
-    from homeassistant.core import HomeAssistant
 
     from custom_components.tariffiq.coordinator import TariffIQDataCoordinator
 
 
-class TariffIQVariableCostSensor(SensorBase, RestoreEntity):
-    """TariffIQ Variable Cost Sensor class."""
+class TariffIQCostSensor(SensorBase):
+    """TariffIQ Cost Sensor class."""
 
     device_class: SensorDeviceClass = SensorDeviceClass.MONETARY
     state_class: str = SensorStateClass.TOTAL
-    _attr_suggested_display_precision: int = 2
+    suggested_display_precision: int = 2
     icon: str = "mdi:cash"
-    translation_key: str = "variable_cost"
+
+    _coordinator_key: str
 
     def __init__(
         self,
-        hass: HomeAssistant,
         entry: ConfigEntry,
         coordinator: TariffIQDataCoordinator,
+        name: str,
+        coordinator_key: str,
     ) -> None:
-        """Initialize the peak sensor."""
-        self.name = "Variable Cost"
+        """Initialize the cost sensor."""
+        self._coordinator_key = coordinator_key
 
-        super().__init__(hass, entry, coordinator, "variable_cost")
+        super().__init__(entry, coordinator, name)
 
     @property
     def native_value(self) -> float | None:
-        """Return the variable cost value."""
+        """Return state."""
         if not self.coordinator.data:
             return None
-        return self.coordinator.data.get("variable_cost")
+        return self.coordinator.data.get(self._coordinator_key, 0.0)
 
     @property
     def native_unit_of_measurement(self) -> str | None:
