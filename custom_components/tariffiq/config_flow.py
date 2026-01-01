@@ -6,7 +6,6 @@ import secrets
 from typing import Any
 
 import voluptuous as vol
-from homeassistant import config_entries
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.helpers import selector, template
 
@@ -174,7 +173,9 @@ class TariffIQConfigFlow(ConfigFlow, domain=DOMAIN):
                     )
                 ),
                 # vol.Optional(CONF_PRICING_ENTITY): selector.SelectSelector(
-                #     selector.SelectSelectorConfig(options=self._get_pricing_entities())
+                #     selector.SelectSelectorConfig(
+                #         options=self._get_pricing_entities()
+                #     )
                 # ),
             }
         )
@@ -232,26 +233,3 @@ class TariffIQConfigFlow(ConfigFlow, domain=DOMAIN):
             errors=_errors,
             last_step=True,
         )
-
-
-class OptionsFlowHandler(config_entries.OptionsFlow):
-    """Handle a TariffIQ options flow."""
-
-    options: dict[str, Any] = {}  # noqa: RUF012
-
-    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        """Initialize TariffIQ options flow."""
-        self.config_entry = config_entry
-        self.options = dict(config_entry.options)
-
-    async def async_step_init(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
-        """Manage the options."""
-        # TODO: Start with a step where Fuse size can be changed.
-        # Then show another step where the rest of the attributes can be changed.
-        # tariff cost, fixed fee, etc. depending on DSO/model/fuse size.
-        # TODO: Which options to be shown should be set depending on DSO object.
-        # TODO: Default values should be set to those defined by the DSO. (Constants)
-
-        return self.async_abort(reason="no_options_available")

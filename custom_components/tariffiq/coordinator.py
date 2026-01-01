@@ -191,7 +191,8 @@ class TariffIQDataCoordinator(DataUpdateCoordinator):
                 "peaks": peaks,
                 "current_hour_consumption": current_hour_consumption,
                 "current_hour_consumption_formatted": (
-                    f"{round(current_hour_consumption, 1)} {UnitOfEnergy.KILO_WATT_HOUR}",
+                    f"{round(current_hour_consumption, 1)} "
+                    f"{UnitOfEnergy.KILO_WATT_HOUR}"
                 ),
                 "predicted_consumption": predicted_consumption,
                 "predicted_consumption_formatted": (

@@ -33,7 +33,7 @@ def discover_dso_classes() -> dict[str, type[DSOBase]]:
             )
 
             # Find all classes in the module that inherit from DSOBase
-            for name, obj in inspect.getmembers(module, inspect.isclass):
+            for _name, obj in inspect.getmembers(module, inspect.isclass):
                 if issubclass(obj, DSOBase) and obj is not DSOBase:
                     # Use the class's name attribute as the key
                     dso_classes[obj.name] = obj
