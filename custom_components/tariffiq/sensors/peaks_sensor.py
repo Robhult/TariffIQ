@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
 from homeassistant.const import (
     UnitOfEnergy,
 )
@@ -22,6 +22,7 @@ class TariffIQPeaksSensor(SensorBase, RestoreEntity):
     """TariffIQ Peaks Sensor class."""
 
     device_class: SensorDeviceClass = SensorDeviceClass.ENERGY
+    state_class: SensorStateClass = SensorStateClass.MEASUREMENT
     native_unit_of_measurement: str = UnitOfEnergy.KILO_WATT_HOUR
     suggested_display_precision: int = 1
     icon: str = "mdi:chart-line"
