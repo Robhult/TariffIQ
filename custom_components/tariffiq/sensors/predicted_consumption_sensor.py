@@ -35,6 +35,15 @@ class TariffIQPredictedConsumptionSensor(SensorBase, RestoreEntity):
         super().__init__(entry, coordinator, "Predicted Consumption")
 
     @property
+    def extra_state_attributes(self) -> dict:
+        """Return the state attributes."""
+        return {
+            "current_hour_consumption": self.coordinator.data.get(
+                "current_hour_consumption_formatted", 0.0
+            ),
+        }
+
+    @property
     def state(self) -> float:
         """Return the state of the peak sensor."""
         try:

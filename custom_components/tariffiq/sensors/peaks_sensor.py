@@ -38,12 +38,6 @@ class TariffIQPeaksSensor(SensorBase, RestoreEntity):
     def extra_state_attributes(self) -> dict:
         """Return the state attributes."""
         return {
-            "current_hour_consumption": self.coordinator.data.get(
-                "current_hour_consumption", 0.0
-            ),
-            "predicted_consumption": self.coordinator.data.get(
-                "predicted_consumption", 0.0
-            ),
             "peaks_dictionary": self.coordinator.data.get("peaks_dictionary", {}),
         }
 
