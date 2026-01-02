@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from sre_parse import State
 from typing import TYPE_CHECKING
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
