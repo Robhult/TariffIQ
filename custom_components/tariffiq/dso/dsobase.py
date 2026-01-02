@@ -4,6 +4,8 @@ from abc import ABC
 from datetime import datetime, timedelta
 from typing import ClassVar
 
+from custom_components.tariffiq.dso.timepattern import TimePattern
+
 
 class DSOBase(ABC):
     """Base class for Distribution System Operators."""
@@ -13,6 +15,7 @@ class DSOBase(ABC):
     currency: ClassVar[str]
     fees: ClassVar[dict]  # Fuse size: fees
     tariff_schedule: ClassVar[dict] = {}
+    tariff_schedule_new: ClassVar[list[TimePattern] | TimePattern]
     selected_fees: dict
 
     @classmethod

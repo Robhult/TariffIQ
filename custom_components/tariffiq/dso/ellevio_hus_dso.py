@@ -9,6 +9,8 @@ https://www.ellevio.se/abonnemang/elnatspriser/hus/
 
 from typing import ClassVar
 
+from custom_components.tariffiq.dso.timepattern import CalendarPeriods, TimePattern
+
 from .dsobase import DSOBase
 from .models.average_of_x_days_model import AverageOfXDaysModel
 
@@ -44,6 +46,20 @@ class EllevioHusDSO(DSOBase, AverageOfXDaysModel):
         "months": list(range(1, 13)),
         "hours": list(range(6, 22)),
     }
+    tariff_schedule_new: ClassVar[list[TimePattern] | TimePattern] = [
+        TimePattern(
+            tariff_factor=0.5,
+            time_filters={
+                CalendarPeriods.Hour: list(range(22, 6)),
+            },
+        ),
+        TimePattern(
+            tariff_factor=1.0,
+            time_filters={
+                CalendarPeriods.Hour: list(range(6, 22)),
+            },
+        ),
+    ]
 
     @classmethod
     def predicted_consumption(cls, energy_hour: float, power: int) -> float:
