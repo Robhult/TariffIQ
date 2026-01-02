@@ -22,34 +22,32 @@ from custom_components.tariffiq.const import (
     DOMAIN,
 )
 from custom_components.tariffiq.coordinator import TariffIQDataCoordinator
+from custom_components.tariffiq.helpers import nametoid
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
-    from homeassistant.core import HomeAssistant
     from homeassistant.helpers.device_registry import DeviceInfo
 
     from custom_components.tariffiq.dso.dsobase import DSOBase
 
 
-class SensorBase(CoordinatorEntity[TariffIQDataCoordinator], SensorEntity):
+class SensorBase(SensorEntity, CoordinatorEntity[TariffIQDataCoordinator]):
     """TariffIQ Base Sensor."""
 
-    hass: HomeAssistant
-    entry: ConfigEntry
-    key: str
+    _entry: ConfigEntry
+    _entry_id: str
 
     def __init__(
         self,
-        hass: HomeAssistant,
         entry: ConfigEntry,
         coordinator: TariffIQDataCoordinator,
-        key: str,
+        name: str,
     ) -> None:
         """Initialize the sensor."""
+        self._entry = entry
+        self._attr_name = f"{entry.data[CONF_NAME]} {name}"
+
         super().__init__(coordinator)
-        self.hass = hass
-        self.entry = entry
-        self.key = key
 
     @property
     def dso_instance(self) -> DSOBase:
@@ -58,19 +56,18 @@ class SensorBase(CoordinatorEntity[TariffIQDataCoordinator], SensorEntity):
 
     @property
     def unique_id(self) -> str:
-        """Return the unique ID of the binary sensor."""
-        conf_name: str = self.entry.data[CONF_NAME].replace("TariffIQ", "")
-        return f"{conf_name}_{self.key}".lower()
+        """Return the unique ID of the sensor."""
+        return f"{DOMAIN}_{self._entry.entry_id}_{nametoid(self._attr_name)}"
 
     @property
     def device_info(self) -> DeviceInfo:
         """Return the device info."""
         return {
-            "identifiers": {(DOMAIN, self.entry.data[CONF_NAME])},
-            "name": self.entry.data[CONF_NAME],
-            "manufacturer": DOMAIN,
+            "identifiers": {(DOMAIN, self._entry.entry_id)},
+            "name": self._entry.data[CONF_NAME],
+            "manufacturer": "TariffIQ",
             "model": (
-                f"{self.entry.data[CONF_DSO_AND_MODEL]}_{self.entry.data[CONF_FUSE_SIZE]}A"
+                f"{self._entry.data[CONF_DSO_AND_MODEL]}_{self._entry.data[CONF_FUSE_SIZE]}A"
             ),
         }
 

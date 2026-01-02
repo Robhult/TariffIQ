@@ -30,6 +30,6 @@ async def async_setup_entry(
     coordinator: TariffIQDataCoordinator = hass.data[DOMAIN][entry.entry_id]
     entities: list[BinarySensorBase] = []
 
-    entities.append(TariffIQTariffActiveBinarySensor(hass, entry, coordinator))
+    entities.append(TariffIQTariffActiveBinarySensor(entry, coordinator))
 
     async_add_entities(entities)

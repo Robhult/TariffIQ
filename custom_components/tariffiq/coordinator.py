@@ -158,7 +158,9 @@ class TariffIQDataCoordinator(DataUpdateCoordinator):
         """Fetch data from the DSO."""
         try:
             LOGGER.debug(
-                "Fetching data from DSO instance %s", self.entry.data[CONF_NAME]
+                "Fetching data from DSO instance %s, %s",
+                self.entry.data[CONF_NAME],
+                self.entry.entry_id,
             )
 
             # Fetch energy sensor value
@@ -189,7 +191,8 @@ class TariffIQDataCoordinator(DataUpdateCoordinator):
                 "peaks": peaks,
                 "current_hour_consumption": current_hour_consumption,
                 "current_hour_consumption_formatted": (
-                    f"{round(current_hour_consumption, 1)} {UnitOfEnergy.KILO_WATT_HOUR}",
+                    f"{round(current_hour_consumption, 1)} "
+                    f"{UnitOfEnergy.KILO_WATT_HOUR}"
                 ),
                 "predicted_consumption": predicted_consumption,
                 "predicted_consumption_formatted": (

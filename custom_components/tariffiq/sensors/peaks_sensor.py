@@ -4,9 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from homeassistant.components.sensor import (
-    SensorDeviceClass,
-)
+from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.const import (
     UnitOfEnergy,
 )
@@ -16,7 +14,6 @@ from custom_components.tariffiq.sensors.sensorbase import SensorBase
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
-    from homeassistant.core import HomeAssistant
 
     from custom_components.tariffiq.coordinator import TariffIQDataCoordinator
 
@@ -27,19 +24,15 @@ class TariffIQPeaksSensor(SensorBase, RestoreEntity):
     device_class: SensorDeviceClass = SensorDeviceClass.ENERGY
     native_unit_of_measurement: str = UnitOfEnergy.KILO_WATT_HOUR
     suggested_display_precision: int = 1
-    translation_key: str = "peaks"
     icon: str = "mdi:chart-line"
 
     def __init__(
         self,
-        hass: HomeAssistant,
         entry: ConfigEntry,
         coordinator: TariffIQDataCoordinator,
     ) -> None:
         """Initialize the peak sensor."""
-        self.name = "Peaks"
-
-        super().__init__(hass, entry, coordinator, "peaks")
+        super().__init__(entry, coordinator, "Peaks")
 
     @property
     def extra_state_attributes(self) -> dict:

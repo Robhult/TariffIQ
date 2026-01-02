@@ -13,7 +13,6 @@ from custom_components.tariffiq.binary_sensors.binary_sensorbase import BinarySe
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
-    from homeassistant.core import HomeAssistant
 
     from custom_components.tariffiq.coordinator import TariffIQDataCoordinator
 
@@ -21,23 +20,13 @@ if TYPE_CHECKING:
 class TariffIQTariffActiveBinarySensor(BinarySensorBase):
     """Tariff active binary sensor."""
 
-    translation_key: str = "tariff_active"
-
     def __init__(
         self,
-        hass: HomeAssistant,
         entry: ConfigEntry,
         coordinator: TariffIQDataCoordinator,
     ) -> None:
         """Initialize the Tariff Active binary sensor."""
-        self.name = "Tariff Active"
-
-        super().__init__(
-            hass,
-            entry,
-            coordinator,
-            key="tariff_active",
-        )
+        super().__init__(entry, coordinator, "Tariff Active")
 
     @property
     def extra_state_attributes(self) -> dict:
