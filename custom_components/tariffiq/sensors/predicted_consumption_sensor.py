@@ -1,4 +1,4 @@
-"""TariffIQ Peaks Sensor integration."""
+"""TariffIQ Predicted Consumption Sensor integration."""
 
 from __future__ import annotations
 
@@ -18,8 +18,8 @@ if TYPE_CHECKING:
     from custom_components.tariffiq.coordinator import TariffIQDataCoordinator
 
 
-class TariffIQPeaksSensor(SensorBase, RestoreEntity):
-    """TariffIQ Peaks Sensor class."""
+class TariffIQPredictedConsumptionSensor(SensorBase, RestoreEntity):
+    """TariffIQ Predicted Consumption Sensor class."""
 
     device_class: SensorDeviceClass = SensorDeviceClass.ENERGY
     state_class: SensorStateClass = SensorStateClass.MEASUREMENT
@@ -32,21 +32,23 @@ class TariffIQPeaksSensor(SensorBase, RestoreEntity):
         entry: ConfigEntry,
         coordinator: TariffIQDataCoordinator,
     ) -> None:
-        """Initialize the peak sensor."""
-        super().__init__(entry, coordinator, "Peaks")
+        """Initialize the predicted consumption sensor."""
+        super().__init__(entry, coordinator, "Predicted Consumption")
 
     @property
     def extra_state_attributes(self) -> dict:
         """Return the state attributes."""
         return {
-            "peaks_dictionary": self.coordinator.data.get("peaks_dictionary", {}),
+            "current_hour_consumption": self.coordinator.data.get(
+                "current_hour_consumption_formatted", 0.0
+            ),
         }
 
     @property
     def state(self) -> float:
         """Return the state of the peak sensor."""
         try:
-            return round(self.coordinator.data.get("peaks", 0.0), 1)
+            return round(self.coordinator.data.get("predicted_consumption", 0.0), 1)
         except (TypeError, ValueError, AttributeError):
             return 0.0
 
@@ -55,7 +57,4 @@ class TariffIQPeaksSensor(SensorBase, RestoreEntity):
         """Return if entity is available."""
         return (
             self.coordinator.last_update_success and self.coordinator.data is not None
-        )
-
-    async def async_update(self) -> None:
-        """Update the peak sensor state."""
+        ) and "predicted_consumption" in self.coordinator.data
