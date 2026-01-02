@@ -6,6 +6,9 @@ from typing import TYPE_CHECKING
 
 from custom_components.tariffiq.sensors.cost_sensor import TariffIQCostSensor
 from custom_components.tariffiq.sensors.peaks_sensor import TariffIQPeaksSensor
+from custom_components.tariffiq.sensors.predicted_consumption_sensor import (
+    TariffIQPredictedConsumptionSensor,
+)
 
 from .const import DOMAIN
 from .coordinator import TariffIQDataCoordinator  # noqa: TC001
@@ -36,6 +39,7 @@ async def async_setup_entry(
     entities: list[SensorBase] = []
 
     entities.append(TariffIQPeaksSensor(config, coordinator))
+    entities.append(TariffIQPredictedConsumptionSensor(config, coordinator))
 
     # Cost sensors
     for name, coordinator_key in cost_sensors:
