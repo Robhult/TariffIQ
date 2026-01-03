@@ -4,7 +4,7 @@ from abc import ABC
 from datetime import datetime, timedelta
 from typing import ClassVar
 
-from custom_components.tariffiq.dso.timepattern import TimePattern
+from custom_components.tariffiq.dso.helpers.tariff_schedule import TariffSchedule
 
 
 class DSOBase(ABC):
@@ -15,7 +15,7 @@ class DSOBase(ABC):
     currency: ClassVar[str]
     fees: ClassVar[dict]  # Fuse size: fees
     tariff_schedule: ClassVar[dict] = {}
-    tariff_schedule_new: ClassVar[list[TimePattern] | TimePattern]
+    tariff_schedule_new: ClassVar[TariffSchedule]
     selected_fees: dict
 
     @classmethod
@@ -31,6 +31,9 @@ class DSOBase(ABC):
     @classmethod
     def tariff_starts_at(cls, current_time: datetime | None = None) -> datetime | None:
         """Return the start time of the tariff period."""
+        if cls.tariff_schedule_new is not None:
+            return cls.tariff_schedule_new.starts_at(current_time)
+
         now = current_time or datetime.now()  # noqa: DTZ005
         next_day = now + timedelta(days=1)
 
@@ -54,6 +57,9 @@ class DSOBase(ABC):
     @classmethod
     def tariff_ends_at(cls, current_time: datetime | None = None) -> datetime | None:
         """Return the end time of the tariff period."""
+        if cls.tariff_schedule_new is not None:
+            return cls.tariff_schedule_new.ends_at(current_time)
+
         now = current_time or datetime.now()  # noqa: DTZ005
 
         if now.month in cls.tariff_schedule["months"]:
@@ -69,6 +75,9 @@ class DSOBase(ABC):
     @classmethod
     def tariff_active(cls, current_time: datetime | None = None) -> bool:
         """Determine if tariff is active."""
+        if cls.tariff_schedule_new is not None:
+            return cls.tariff_schedule_new.active(current_time)
+
         now = current_time or datetime.now()  # noqa: DTZ005
 
         return bool(
