@@ -51,7 +51,7 @@ class TimePattern:
     def active(self, date: datetime | None = None) -> bool:
         """Check if a given datetime matches the time pattern."""
         if date is None:
-            date = datetime.now(dt_util.DEFAULT_TIME_ZONE)
+            date = dt_util.now()
 
         return (
             date.hour in self.hour
@@ -63,7 +63,7 @@ class TimePattern:
     def starts_at(self, from_date: datetime | None = None) -> datetime:
         """Get the next datetime when the time pattern becomes active."""
         if from_date is None:
-            from_date = datetime.now(dt_util.DEFAULT_TIME_ZONE)
+            from_date = dt_util.now()
 
         check_date = from_date.replace(minute=0, second=0, microsecond=0) + timedelta(
             hours=1
@@ -77,7 +77,7 @@ class TimePattern:
     def ends_at(self, from_date: datetime | None = None) -> datetime:
         """Get the datetime when the time pattern ends."""
         if from_date is None:
-            from_date = datetime.now(dt_util.DEFAULT_TIME_ZONE)
+            from_date = dt_util.now()
 
         check_date = from_date.replace(minute=0, second=0, microsecond=0) + timedelta(
             hours=1
@@ -118,7 +118,7 @@ class TariffSchedule:
     def active_timepattern(self, date: datetime | None = None) -> TimePattern | None:
         """Get the active TimePattern for a given datetime."""
         if date is None:
-            date = datetime.now(dt_util.DEFAULT_TIME_ZONE)
+            date = dt_util.now()
 
         for timepattern in self.timepatterns:
             if timepattern.active(date):
@@ -141,7 +141,7 @@ class TariffSchedule:
             return None
 
         if from_date is None:
-            from_date = datetime.now(dt_util.DEFAULT_TIME_ZONE)
+            from_date = dt_util.now()
 
         check_date = from_date.replace(minute=0, second=0, microsecond=0) + timedelta(
             hours=1
@@ -163,7 +163,7 @@ class TariffSchedule:
             return None
 
         if from_date is None:
-            from_date = datetime.now(dt_util.DEFAULT_TIME_ZONE)
+            from_date = dt_util.now()
 
         check_date = from_date.replace(minute=0, second=0, microsecond=0) + timedelta(
             hours=1

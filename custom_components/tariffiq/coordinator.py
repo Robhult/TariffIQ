@@ -187,7 +187,6 @@ class TariffIQDataCoordinator(DataUpdateCoordinator):
                 "tariff_starts_at": self.dso_instance.tariff_starts_at(),
                 "tariff_ends_at": self.dso_instance.tariff_ends_at(),
                 "tariff_schedule": self.dso_instance.tariff_schedule,
-                # Peaks Sensor
                 "peaks": peaks,
                 "current_hour_consumption": current_hour_consumption,
                 "current_hour_consumption_formatted": (
@@ -199,10 +198,12 @@ class TariffIQDataCoordinator(DataUpdateCoordinator):
                     f"{round(predicted_consumption, 1)} {UnitOfEnergy.KILO_WATT_HOUR}"
                 ),
                 "peaks_dictionary": peaks_dict,
-                # DSO Cost Sensors
+                "calculated_peak": self.dso_instance.calculated_peak(
+                    current_hour_consumption
+                ),
                 "fixed_cost": fixed_cost,
                 "variable_cost": variable_cost,
-                "peaks_cost": peaks_cost,  # Placeholder for peaks cost value
+                "peaks_cost": peaks_cost,
                 "total_dso_cost": total_dso_cost,
                 # Consumption tracking data
                 "energy_value": energy_value,  # Current energy reading

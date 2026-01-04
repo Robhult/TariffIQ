@@ -4,6 +4,8 @@ from abc import ABC
 from datetime import datetime, timedelta
 from typing import ClassVar
 
+from homeassistant.util import dt as dt_util
+
 from custom_components.tariffiq.dso.helpers.tariff_schedule import TariffSchedule
 
 
@@ -34,7 +36,7 @@ class DSOBase(ABC):
         if cls.tariff_schedule_new is not None:
             return cls.tariff_schedule_new.starts_at(current_time)
 
-        now = current_time or datetime.now()  # noqa: DTZ005
+        now = current_time or dt_util.now()
         next_day = now + timedelta(days=1)
 
         if (
@@ -60,7 +62,7 @@ class DSOBase(ABC):
         if cls.tariff_schedule_new is not None:
             return cls.tariff_schedule_new.ends_at(current_time)
 
-        now = current_time or datetime.now()  # noqa: DTZ005
+        now = current_time or dt_util.now()
 
         if now.month in cls.tariff_schedule["months"]:
             return now.replace(
@@ -78,7 +80,7 @@ class DSOBase(ABC):
         if cls.tariff_schedule_new is not None:
             return cls.tariff_schedule_new.active(current_time)
 
-        now = current_time or datetime.now()  # noqa: DTZ005
+        now = current_time or dt_util.now()
 
         return bool(
             now.month in cls.tariff_schedule["months"]
@@ -88,7 +90,7 @@ class DSOBase(ABC):
     @classmethod
     def fixed_cost(cls) -> float:
         """Return the fixed cost for this DSO."""
-        now = datetime.now()  # noqa: DTZ005
+        now = dt_util.now()
         current_hour = (now - datetime(now.year, 1, 1)).total_seconds() // 3600  # noqa: DTZ001
         total_hours_in_year = (
             datetime(now.year + 1, 1, 1) - datetime(now.year, 1, 1)  # noqa: DTZ001
@@ -114,4 +116,21 @@ class DSOBase(ABC):
     @classmethod
     def predicted_consumption(cls, energy_hour: float, power: float) -> float:
         """Return the expected peak value."""
+        if cls.tariff_schedule_new is not None:
+            timepattern = cls.tariff_schedule_new.active_timepattern()
+
+            if timepattern is not None:
+                return (energy_hour + power / 1000) * timepattern.tariff_factor
+
         return energy_hour + power / 1000 if cls.tariff_active() else 0.0
+
+    @classmethod
+    def calculated_peak(cls, energy_hour: float) -> float:
+        """Return the charged peak value based on tariff schedule."""
+        if cls.tariff_schedule_new is not None:
+            timepattern = cls.tariff_schedule_new.active_timepattern()
+
+            if timepattern is not None:
+                return energy_hour * timepattern.tariff_factor
+
+        return energy_hour if cls.tariff_active() else 0.0

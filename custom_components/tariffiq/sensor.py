@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from custom_components.tariffiq.sensors.calculated_peak_sensor import (
+    TariffIQCalculatedPeakSensor,
+)
 from custom_components.tariffiq.sensors.cost_sensor import TariffIQCostSensor
 from custom_components.tariffiq.sensors.peaks_sensor import TariffIQPeaksSensor
 from custom_components.tariffiq.sensors.predicted_consumption_sensor import (
@@ -39,6 +42,7 @@ async def async_setup_entry(
     entities: list[SensorBase] = []
 
     entities.append(TariffIQPeaksSensor(config, coordinator))
+    entities.append(TariffIQCalculatedPeakSensor(config, coordinator))
     entities.append(TariffIQPredictedConsumptionSensor(config, coordinator))
 
     # Cost sensors
