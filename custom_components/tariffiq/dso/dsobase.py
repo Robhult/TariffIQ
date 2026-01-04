@@ -91,7 +91,10 @@ class DSOBase(ABC):
     def fixed_cost(cls) -> float:
         """Return the fixed cost for this DSO."""
         now = dt_util.now()
-        current_hour = (now - datetime(now.year, 1, 1)).total_seconds() // 3600  # noqa: DTZ001
+        start_of_year = now.replace(
+            month=1, day=1, hour=0, minute=0, second=0, microsecond=0
+        )
+        current_hour = (now - start_of_year).total_seconds() // 3600
         total_hours_in_year = (
             datetime(now.year + 1, 1, 1) - datetime(now.year, 1, 1)  # noqa: DTZ001
         ).total_seconds() // 3600

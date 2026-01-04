@@ -1,22 +1,17 @@
 """TariffIQ data coordinator."""
 
-from datetime import timedelta
-from typing import Any
+from __future__ import annotations
 
-from homeassistant.components.recorder.statistics import (
-    StatisticsRow,
-    statistics_during_period,
-)
-from homeassistant.config_entries import ConfigEntry
+from datetime import timedelta
+from typing import TYPE_CHECKING, Any
+
 from homeassistant.const import (
     UnitOfEnergy,
 )
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.recorder import get_instance
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt as dt_util
 
-from custom_components.tariffiq.dso.dsobase import DSOBase
+from custom_components.tariffiq.helpers.statistics import TariffIQStatisticsHelper
 
 from .const import (
     CONF_DSO_AND_MODEL,
@@ -28,12 +23,22 @@ from .const import (
 from .dso import get_dso_class
 from .helpers import LOGGER
 
+if TYPE_CHECKING:
+    from homeassistant.components.recorder.statistics import (
+        StatisticsRow,
+    )
+    from homeassistant.config_entries import ConfigEntry
+    from homeassistant.core import HomeAssistant
+
+    from custom_components.tariffiq.dso.dsobase import DSOBase
+
 
 class TariffIQDataCoordinator(DataUpdateCoordinator):
     """TariffIQ Data Coordinator to manage data updates."""
 
     entry: ConfigEntry
     dso_instance: DSOBase
+    statistics_helper: TariffIQStatisticsHelper
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         """Initialize the coordinator."""
@@ -44,6 +49,7 @@ class TariffIQDataCoordinator(DataUpdateCoordinator):
             update_interval=timedelta(minutes=5),
         )
         self.entry = entry
+        self.statistics_helper = TariffIQStatisticsHelper(hass)
 
         try:
             # Initialize DSO class instance
@@ -112,47 +118,27 @@ class TariffIQDataCoordinator(DataUpdateCoordinator):
         self,
     ) -> list[StatisticsRow]:
         """Fetch energy statistics for the past day."""
-        recorder_instance = get_instance(self.hass)
-
-        return (
-            await recorder_instance.async_add_executor_job(
-                statistics_during_period,
-                self.hass,
-                dt_util.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0),
-                None,
-                {self.entry.data[CONF_ENERGY_SENSOR]},
-                "hour",
-                None,
-                {"change", "max", "mean", "min", "state", "sum"},
-            )
-        ).get(self.entry.data[CONF_ENERGY_SENSOR], [])
+        return await self.statistics_helper.get_hourly_stats(
+            self.entry.data[CONF_ENERGY_SENSOR],
+            dt_util.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0),
+            None,
+        )
 
     async def _get_energy_statistics_12_months(self) -> list[StatisticsRow]:
         """Fetch energy statistics for the past 12 months."""
-        recorder_instance = get_instance(self.hass)
-        start_time = dt_util.now().replace(
-            day=1, hour=0, minute=0, second=0, microsecond=0
-        ) - timedelta(days=365)
-
-        return (
-            await recorder_instance.async_add_executor_job(
-                statistics_during_period,
-                self.hass,
-                start_time,
-                None,
-                {self.entry.data[CONF_ENERGY_SENSOR]},
-                "hour",
-                None,
-                {"change", "max", "mean", "min", "state", "sum"},
-            )
-        ).get(self.entry.data[CONF_ENERGY_SENSOR], [])
+        return await self.statistics_helper.get_hourly_stats(
+            self.entry.data[CONF_ENERGY_SENSOR],
+            dt_util.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            - timedelta(days=365),
+            None,
+        )
 
     async def _get_current_hour_consumption(self) -> float:
         # Fetch current hour consumption from recorder statistics
-        stats = await self._get_energy_statistics_for_current_month()
-
-        stats_value = stats.pop().get("state", 0.0) if stats else 0.0
-        return self._get_energy_sensor_value() - (stats_value or 0.0)
+        return self._get_energy_sensor_value() - (
+            await self.statistics_helper.get_latest(self.entry.data[CONF_ENERGY_SENSOR])
+            or 0.0
+        )
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch data from the DSO."""
