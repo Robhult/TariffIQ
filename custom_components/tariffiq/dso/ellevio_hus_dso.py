@@ -46,11 +46,7 @@ class EllevioHusDSO(DSOBase, AverageOfXDaysModel):
             "tariff_cost": 81.25,
         },
     }
-    tariff_schedule: ClassVar[dict] = {
-        "months": list(range(1, 13)),
-        "hours": list(range(6, 22)),
-    }
-    tariff_schedule_new: ClassVar[TariffSchedule] = TariffSchedule(
+    tariff_schedule: ClassVar[TariffSchedule] = TariffSchedule(
         [
             TimePattern(
                 tariff_factor=0.5,

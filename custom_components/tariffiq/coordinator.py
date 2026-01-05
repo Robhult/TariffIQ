@@ -172,7 +172,7 @@ class TariffIQDataCoordinator(DataUpdateCoordinator):
                 "tariff_active": self.dso_instance.tariff_active(),
                 "tariff_starts_at": self.dso_instance.tariff_starts_at(),
                 "tariff_ends_at": self.dso_instance.tariff_ends_at(),
-                "tariff_schedule": self.dso_instance.tariff_schedule,
+                "tariff_schedule": self.dso_instance.get_tariff_schedule(),
                 "peaks": peaks,
                 "current_hour_consumption": current_hour_consumption,
                 "current_hour_consumption_formatted": (

@@ -8,7 +8,6 @@ from homeassistant.util import dt as dt_util
 ALL_HOURS = list(range(24))
 ALL_WEEKDAYS = list(range(7))  # 0=Monday, 6=Sunday
 ALL_MONTHS = list(range(1, 13))
-ALL_QUARTERS = list(range(1, 5))
 
 
 class CalendarPeriods(Enum):
@@ -17,7 +16,6 @@ class CalendarPeriods(Enum):
     Hour = "hour"
     Weekday = "weekday"  # 0=Monday, 6=Sunday
     Month = "month"
-    Quarter = "quarter"
 
 
 class TimePattern:
@@ -46,7 +44,6 @@ class TimePattern:
         self.hour = time_filters.get(CalendarPeriods.Hour) or ALL_HOURS
         self.weekday = time_filters.get(CalendarPeriods.Weekday) or ALL_WEEKDAYS
         self.month = time_filters.get(CalendarPeriods.Month) or ALL_MONTHS
-        self.quarter = time_filters.get(CalendarPeriods.Quarter) or ALL_QUARTERS
 
     def active(self, date: datetime | None = None) -> bool:
         """Check if a given datetime matches the time pattern."""
@@ -57,7 +54,6 @@ class TimePattern:
             date.hour in self.hour
             and date.weekday() in self.weekday
             and date.month in self.month
-            and ((date.month - 1) // 3 + 1) in self.quarter
         )
 
     def starts_at(self, from_date: datetime | None = None) -> datetime:
@@ -98,7 +94,6 @@ class TariffSchedule:
         self.hour: list[int] = []
         self.weekday: list[int] = []
         self.month: list[int] = []
-        self.quarter: list[int] = []
 
         if isinstance(timepattern, TimePattern):
             self.timepatterns = [timepattern]
@@ -109,7 +104,6 @@ class TariffSchedule:
             self.hour = list(set(self.hour) | set(pattern.hour))
             self.weekday = list(set(self.weekday) | set(pattern.weekday))
             self.month = list(set(self.month) | set(pattern.month))
-            self.quarter = list(set(self.quarter) | set(pattern.quarter))
 
     def get_timepatterns(self) -> list[TimePattern]:
         """Get all TimePatterns in the TariffSchedule."""
@@ -136,7 +130,6 @@ class TariffSchedule:
             self.hour == ALL_HOURS
             and self.weekday == ALL_WEEKDAYS
             and self.month == ALL_MONTHS
-            and self.quarter == ALL_QUARTERS
         ):
             return None
 
@@ -158,7 +151,6 @@ class TariffSchedule:
             self.hour == ALL_HOURS
             and self.weekday == ALL_WEEKDAYS
             and self.month == ALL_MONTHS
-            and self.quarter == ALL_QUARTERS
         ):
             return None
 

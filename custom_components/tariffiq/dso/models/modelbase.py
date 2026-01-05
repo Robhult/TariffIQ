@@ -7,12 +7,13 @@ from typing import ClassVar
 from homeassistant.components.recorder.statistics import StatisticsRow
 
 from custom_components.tariffiq.const import LOGGER, NOTIMPLEMENTED_MSG
+from custom_components.tariffiq.dso.helpers.tariff_schedule import TariffSchedule
 
 
 class ModelBase(ABC):
     """Base class for DSO pricing models."""
 
-    tariff_schedule: ClassVar[dict[str, list[int]]]
+    tariff_schedule: ClassVar[TariffSchedule]
 
     @classmethod
     @abstractmethod
@@ -50,8 +51,6 @@ class ModelBase(ABC):
 
         """
         filtered = []
-
-        # TODO: How to handle factor on peaks that are outside of selected hours?
 
         for stat in statistics:
             start_time = datetime.fromtimestamp(stat.get("start", 0.0))  # noqa: DTZ006
