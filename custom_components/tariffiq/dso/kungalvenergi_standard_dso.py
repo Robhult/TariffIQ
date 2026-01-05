@@ -9,6 +9,11 @@ https://www.kungalvenergi.se/elnat/ny-effekttaxa/
 
 from typing import ClassVar
 
+from custom_components.tariffiq.dso.helpers.tariff_schedule import (
+    CalendarPeriods,
+    TariffSchedule,
+    TimePattern,
+)
 from custom_components.tariffiq.dso.models.average_of_x_hours_model import (
     AverageOfXHoursModel,
 )
@@ -53,8 +58,14 @@ class KungalvEnergiStandardDSO(DSOBase, AverageOfXHoursModel):
             "tariff_cost": 57.17,
         },
     }
-    tariff_schedule: ClassVar[dict] = {
-        "months": [1, 2, 3, 11, 12],
-        "days_in_week": list(range(7)),
-        "hours": list(range(7, 21)),
-    }
+    tariff_schedule: ClassVar[TariffSchedule] = TariffSchedule(
+        [
+            TimePattern(
+                tariff_factor=1.0,
+                time_filters={
+                    CalendarPeriods.Month: [1, 2, 3, 11, 12],
+                    CalendarPeriods.Hour: list(range(7, 21)),
+                },
+            )
+        ]
+    )

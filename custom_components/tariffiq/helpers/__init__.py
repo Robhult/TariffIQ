@@ -1,4 +1,4 @@
-"""Helper functions for TariffIQ integration."""
+"""Module for helpers in TariffIQ."""
 
 import logging
 

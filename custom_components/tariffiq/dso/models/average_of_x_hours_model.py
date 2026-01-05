@@ -35,9 +35,9 @@ class AverageOfXHoursModel(ModelBase):
         """Return the peak values for the model."""
         filtered_stats = cls._filter_statistics(
             statistics,
-            months=set(cls.tariff_schedule.get("months", [])),
-            weekdays=set(cls.tariff_schedule.get("days_in_week", [])),
-            hours=set(cls.tariff_schedule.get("hours", [])),
+            months=set(cls.tariff_schedule.month),
+            weekdays=set(cls.tariff_schedule.weekday),
+            hours=set(cls.tariff_schedule.hour),
         )
 
         peaks = []
